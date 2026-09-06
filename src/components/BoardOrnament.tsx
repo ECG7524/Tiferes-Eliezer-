@@ -145,49 +145,93 @@ function Corner({ className }: { className: string }) {
 /* Parchment panel                                                     */
 /* ------------------------------------------------------------------ */
 
+/** A palmette keystone, for the apex of an arch. */
+function Keystone({ className = '' }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 60 40" className={`absolute z-20 h-[34px] w-[52px] ${className}`}>
+      <path
+        d="M30 3 C34 14 45 18 52 27 C43 31 33 27 31 20 L31 38 L29 38 L29 20 C27 27 17 31 8 27 C15 18 26 14 30 3 Z"
+        fill={GOLD}
+      />
+      <circle cx="30" cy="4" r="3.4" fill={GOLD_LIGHT} />
+    </svg>
+  );
+}
+
 /**
- * A parchment plate in a carved frame, its title on a dark plaque that breaks
- * the top edge — the arrangement nearly every printed shul board uses.
+ * A parchment plate under a carved arch, its title on a dark plaque hung below
+ * the apex — the arrangement the printed shul boards use.
+ *
+ * The arch is an elliptical border radius rather than an SVG path, so it keeps
+ * its shape at any panel width instead of stretching.
  */
 export function Panel({
   title,
+  arched = true,
   className = '',
   bodyClassName = '',
   children,
 }: {
   title?: string;
+  /** Off for the short full-width strips, where a dome wastes the height. */
+  arched?: boolean;
   className?: string;
   bodyClassName?: string;
   children: ReactNode;
 }) {
+  const radius = arched
+    ? '46% 46% 12px 12px / 26% 26% 12px 12px'
+    : '14px';
+
   return (
     <section className={`relative flex min-h-0 flex-col ${className}`}>
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[10px]"
+        className="pointer-events-none absolute inset-0"
         style={{
-          background: 'linear-gradient(172deg, #FCF5E4 0%, #F4E7C8 48%, #EBDAB2 100%)',
-          // Dark carved edge, then a gold rule, then the parchment.
+          borderRadius: radius,
+          background:
+            'radial-gradient(120% 80% at 50% 0%, #FFFDF4 0%, #FAF1DC 38%, #F0E2BE 72%, #E6D3A9 100%)',
+          // Dark carved edge, a gold rule, then the parchment.
           boxShadow: [
             `0 0 0 2px ${GOLD}`,
-            `0 0 0 6px ${WOOD_DARK}`,
-            '0 10px 26px -8px rgba(0,0,0,.55)',
-            'inset 0 1px 0 rgba(255,255,255,.7)',
+            `0 0 0 7px ${WOOD_DARK}`,
+            `0 0 0 8px ${GOLD}`,
+            '0 14px 34px -10px rgba(0,0,0,.6)',
+            'inset 0 2px 0 rgba(255,255,255,.75)',
           ].join(', '),
         }}
       />
-      <Corner className="-left-[9px] -top-[9px]" />
-      <Corner className="-right-[9px] -top-[9px] scale-x-[-1]" />
-      <Corner className="-bottom-[9px] -left-[9px] scale-y-[-1]" />
-      <Corner className="-bottom-[9px] -right-[9px] scale-[-1]" />
+      {/* An inner rule that follows the arch. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-[10px]"
+        style={{
+          borderRadius: arched ? '46% 46% 8px 8px / 26% 26% 8px 8px' : '8px',
+          border: `1px solid rgba(154,122,28,.45)`,
+        }}
+      />
+
+      {arched ? (
+        <Keystone className="-top-[26px] left-1/2 -translate-x-1/2" />
+      ) : (
+        <>
+          <Corner className="-left-[10px] -top-[10px]" />
+          <Corner className="-right-[10px] -top-[10px] scale-x-[-1]" />
+        </>
+      )}
+      <Corner className="-bottom-[10px] -left-[10px] scale-y-[-1]" />
+      <Corner className="-bottom-[10px] -right-[10px] scale-[-1]" />
 
       {title && (
-        <div className="relative z-10 -mt-[15px] flex justify-center">
+        <div
+          className={`relative z-10 flex justify-center ${arched ? 'mt-[6%]' : '-mt-[16px]'}`}
+        >
           <span
             className="rounded-md px-6 py-[3px] text-center text-lg font-semibold uppercase tracking-[0.16em] text-gold-200 2xl:text-xl"
             style={{
-              background: `linear-gradient(180deg, #4A3014, #2A1A08)`,
-              boxShadow: `0 0 0 1.5px ${GOLD}, 0 3px 10px rgba(0,0,0,.5)`,
+              background: 'linear-gradient(180deg, #4A3014, #2A1A08)',
+              boxShadow: `0 0 0 1.5px ${GOLD}, 0 3px 12px rgba(0,0,0,.55)`,
             }}
           >
             {title}
@@ -195,7 +239,9 @@ export function Panel({
         </div>
       )}
 
-      <div className={`relative min-h-0 flex-1 overflow-hidden px-5 pb-4 pt-3 ${bodyClassName}`}>
+      <div
+        className={`relative min-h-0 flex-1 overflow-hidden px-6 pb-5 ${arched ? 'pt-3' : 'pt-3'} ${bodyClassName}`}
+      >
         {children}
       </div>
     </section>

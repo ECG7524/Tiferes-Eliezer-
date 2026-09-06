@@ -77,12 +77,8 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
       <div className="relative flex min-h-0 flex-1 flex-col px-[62px] py-3">
         {/* ---------------- Header ---------------- */}
         <header className="flex shrink-0 items-center justify-between gap-6">
-          <div className="ltr-run w-[22%] shrink-0">
-            <p className="font-display text-[3.4rem] font-semibold leading-none tabular-nums text-ivory-50 2xl:text-7xl">
-              {clock.toFormat('h:mm')}
-              <span className="ms-1 align-baseline text-2xl text-gold-400">:{clock.toFormat('ss')}</span>
-            </p>
-            <p className="mt-0.5 text-base uppercase tracking-[0.3em] text-gold-500">{clock.toFormat('a')}</p>
+          <div className="flex w-[26%] shrink-0 justify-start">
+            <Crest variant="mark-light" size="board" dark nameHe={data.shul.nameHe} nameEn={data.shul.nameEn} />
           </div>
 
           <div className="min-w-0 flex-1 text-center">
@@ -123,8 +119,14 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
             </p>
           </div>
 
-          <div className="flex w-[22%] shrink-0 justify-end">
-            <Crest variant="mark-light" size="md" dark nameHe={data.shul.nameHe} nameEn={data.shul.nameEn} />
+          <div className="flex w-[26%] shrink-0 justify-end ltr-run">
+            <p className="font-display text-[3.4rem] font-semibold leading-none tabular-nums text-ivory-50 2xl:text-7xl">
+              {clock.toFormat('h:mm')}
+              <span className="ms-1 align-baseline text-2xl text-gold-400">:{clock.toFormat('ss')}</span>
+              <span className="ms-2 align-baseline text-xl uppercase tracking-[0.2em] text-gold-500">
+                {clock.toFormat('a')}
+              </span>
+            </p>
           </div>
         </header>
 
@@ -212,7 +214,7 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
 
         {/* ---------------- Davening, full width ---------------- */}
         {!panel?.fill && (
-          <Panel title={t('זמני התפילה', 'Davening')} className="mt-5 shrink-0" bodyClassName="pt-1 pb-2">
+          <Panel title={t('זמני התפילה', 'Davening')} arched={false} className="mt-5 shrink-0" bodyClassName="pt-1 pb-2">
             {data.minyanimToday.length === 0 ? (
               <p className="py-2 text-center text-xl text-walnut-400">
                 {t('אין תפילות רשומות', 'No minyanim listed')}
@@ -389,11 +391,11 @@ function buildPanels(data: DisplayData, t: (he: string, en: string) => string): 
           </div>
         ) : (
           <div dir="auto" className="text-center">
-            <h3 className={`text-4xl font-bold leading-tight 2xl:text-5xl ${a.priority === 'urgent' ? 'text-rose-800' : 'text-walnut-900'}`}>
+            <h3 className={`text-5xl font-bold leading-tight 2xl:text-6xl ${a.priority === 'urgent' ? 'text-rose-800' : 'text-walnut-900'}`}>
               {a.title}
             </h3>
             {a.body && (
-              <p dir="auto" className="mt-3 whitespace-pre-line text-2xl leading-snug text-walnut-700 2xl:text-3xl">
+              <p dir="auto" className="mt-5 whitespace-pre-line text-3xl leading-snug text-walnut-700 2xl:text-4xl">
                 {a.body}
               </p>
             )}

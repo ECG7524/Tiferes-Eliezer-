@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { CrestMark } from './CrestMark';
 
 /**
  * The shul's crest.
@@ -26,16 +27,20 @@ const HEIGHTS = {
   xs: 'h-9',
   sm: 'h-12',
   md: 'h-20',
+  /** Sized for the board's header band. */
+  board: 'h-[132px]',
   lg: 'h-32 sm:h-44',
   xl: 'h-40 sm:h-56',
 } as const;
 
 const WORDMARK_HE = {
-  xs: 'text-base', sm: 'text-lg', md: 'text-2xl', lg: 'text-4xl sm:text-5xl', xl: 'text-5xl sm:text-6xl',
+  xs: 'text-base', sm: 'text-lg', md: 'text-2xl', board: 'text-4xl',
+  lg: 'text-4xl sm:text-5xl', xl: 'text-5xl sm:text-6xl',
 } as const;
 
 const WORDMARK_EN = {
-  xs: 'text-[9px]', sm: 'text-[10px]', md: 'text-xs', lg: 'text-sm', xl: 'text-base',
+  xs: 'text-[9px]', sm: 'text-[10px]', md: 'text-xs', board: 'text-sm',
+  lg: 'text-sm', xl: 'text-base',
 } as const;
 
 export function Crest({
@@ -81,20 +86,12 @@ export function Crest({
     );
   }
 
-  // No artwork yet: just the name, set well. A box here reads as an empty
-  // form field, which is worse than no ornament at all.
+  // No artwork in public/ yet, so use the drawn crest. It carries the shul's
+  // name in a cartouche rather than leaving a gap, and steps aside as soon as
+  // the real files are added.
   return (
-    <span className={`flex flex-col items-center justify-center leading-none ${className}`}>
-      <span className={`he font-hebrew font-bold ${WORDMARK_HE[size]} ${dark ? 'text-gold-200' : 'text-walnut-800'}`}>
-        {nameHe}
-      </span>
-      <span
-        className={`mt-[0.4em] font-display uppercase leading-none tracking-[0.24em] ${WORDMARK_EN[size]} ${
-          dark ? 'text-gold-500/80' : 'text-gold-700'
-        }`}
-      >
-        {nameEn}
-      </span>
+    <span className={`inline-flex ${HEIGHTS[size]} items-center ${className}`}>
+      <CrestMark nameHe={nameHe} dark={dark} />
     </span>
   );
 }
