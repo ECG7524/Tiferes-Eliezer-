@@ -39,7 +39,7 @@ export function SiteHeader({
     <header className="sticky top-0 z-40 border-b border-gold-200 bg-ivory-100/90 backdrop-blur no-print">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link href="/" className="shrink-0" aria-label={nameEn}>
-          <Crest size="sm" nameHe={nameHe} nameEn={nameEn} />
+          <Crest variant="mark" size="sm" nameHe={nameHe} nameEn={nameEn} />
         </Link>
 
         <nav className="ml-auto hidden items-center gap-1 lg:flex">
@@ -131,9 +131,8 @@ export function SiteFooter({
     <footer className="mt-16 border-t border-gold-200 bg-ivory-200/60 no-print">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="flex flex-col items-center text-center">
-          <p className="he font-hebrew text-xl font-bold text-walnut-800">{nameHe}</p>
-          <p className="mt-1 font-display text-sm uppercase tracking-[0.2em] text-gold-700">{nameEn}</p>
-          <hr className="rule-gold my-4 max-w-xs" />
+          <Crest variant="mark" size="md" nameHe={nameHe} nameEn={nameEn} className="mb-3" />
+          <hr className="rule-gold mb-4 max-w-xs" />
           <p className="he font-hebrew text-sm text-walnut-600">{dedicationHe}</p>
           <p className="he font-hebrew text-sm text-walnut-600">{nasiHe}</p>
           <p className="mt-4 text-sm text-walnut-500">{address}</p>

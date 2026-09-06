@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { DateTime } from 'luxon';
 import type { DisplayData } from '@/lib/displayData';
+import { Crest } from './Crest';
 
 /** How often the board asks the server for fresh data. */
 const POLL_MS = 60_000;
@@ -70,13 +71,14 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
     >
       {/* ---------------- Header ---------------- */}
       <header className="flex shrink-0 items-center justify-between gap-6 border-b-2 border-gold-600/50 px-8 py-3">
-        <div className="min-w-0 text-start">
-          <h1 className="he font-hebrew text-3xl font-bold leading-none text-gold-200 2xl:text-4xl">
-            {data.shul.nameHe}
-          </h1>
-          <p className="mt-1 truncate font-display text-xs uppercase tracking-[0.25em] text-gold-500/70">
-            {data.shul.nameEn}
-          </p>
+        <div className="min-w-0 shrink-0">
+          <Crest
+            variant="mark-light"
+            size="md"
+            dark
+            nameHe={data.shul.nameHe}
+            nameEn={data.shul.nameEn}
+          />
         </div>
 
         {/* Parsha is the thing people look up first, so it leads. */}

@@ -2,8 +2,9 @@ import { getSettings } from '@/lib/settings';
 import { computeZmanim, todayISO, fmtTime, ALOS_OPINION_LABELS, TZAIS_OPINION_LABELS } from '@/lib/zmanim';
 import { isStripeEnabled } from '@/lib/stripe';
 import { LEARNING_CYCLES } from '@/lib/learning';
+import { ARTWORK, artworkPresence } from '@/lib/artwork';
 import { saveSettingsAction } from '@/actions/admin';
-import { PageHeader, Card, Flash } from '@/components/ui';
+import { PageHeader, Card, Flash, Badge } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,7 @@ export default async function AdminSettingsPage({
 }) {
   const [sp, s] = await Promise.all([searchParams, getSettings()]);
   const enabledCycles = parseCycles(s.displayLearningCycles);
+  const artwork = artworkPresence();
   const tz = s.timezone;
   const today = todayISO(tz);
   const preview = computeZmanim(today, s);
@@ -48,10 +50,37 @@ export default async function AdminSettingsPage({
               <input id="nasiHe" name="nasiHe" dir="rtl" defaultValue={s.nasiHe} className="input font-hebrew" />
             </div>
           </div>
-          <p className="mt-4 rounded-lg bg-gold-50 px-3 py-2.5 text-xs text-walnut-500">
-            The crest at the top of every page comes from <code className="font-mono">public/logo.png</code>.
-            Drop the artwork in there and it appears everywhere automatically.
-          </p>
+          <div className="mt-5 border-t border-gold-200 pt-5">
+            <p className="eyebrow mb-2">Crest artwork</p>
+            <p className="mb-3 text-xs text-walnut-500">
+              Add these to the <code className="font-mono">public/</code> folder as PNGs with
+              transparent backgrounds. Anything missing falls back to the next best file, so the
+              site keeps working while you add them.
+            </p>
+            <table className="table-shul">
+              <tbody>
+                {ARTWORK.map((a) => {
+                  const present = artwork?.[a.file];
+                  return (
+                    <tr key={a.file}>
+                      <td className="font-mono text-xs text-walnut-700">{a.file}</td>
+                      <td className="text-walnut-700">{a.label}</td>
+                      <td className="text-xs text-walnut-400">{a.usedFor}</td>
+                      <td className="text-right">
+                        {artwork === null ? (
+                          <span className="text-xs text-walnut-400">—</span>
+                        ) : present ? (
+                          <Badge value="active" label="in place" />
+                        ) : (
+                          <Badge value="pending" label="not added yet" />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         <Card title="Address &amp; contact">

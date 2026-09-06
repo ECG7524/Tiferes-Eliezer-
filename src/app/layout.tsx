@@ -10,6 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: name, template: `%s · ${s?.nameEn ?? 'Tiferes Eliezer'}` },
     description: `Zmanim, davening times, shiurim, announcements and giving for ${s?.nameEn ?? 'the shul'}.`,
+    // Served from public/. A missing file simply leaves the browser default.
+    icons: { icon: '/icon.png', apple: '/icon.png' },
   };
 }
 

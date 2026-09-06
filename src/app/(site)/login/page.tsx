@@ -19,7 +19,7 @@ export default async function LoginPage({
   return (
     <div className="mx-auto max-w-md py-6">
       <div className="mb-8 flex justify-center">
-        <Crest size="md" nameHe={settings.nameHe} nameEn={settings.nameEn} />
+        <Crest variant="full" size="lg" nameHe={settings.nameHe} nameEn={settings.nameEn} />
       </div>
 
       <div className="card card-pad">

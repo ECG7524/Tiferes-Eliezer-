@@ -41,13 +41,13 @@ export default async function HomePage() {
       {/* ---------------- Hero ---------------- */}
       <section className="relative overflow-hidden rounded-2xl border border-gold-200 bg-gradient-to-b from-ivory-50 to-ivory-200 px-6 py-10 text-center shadow-crest sm:py-14">
         <div className="flex justify-center">
-          <Crest size="lg" nameHe={settings.nameHe} nameEn={settings.nameEn} />
+          <Crest variant="full" size="xl" nameHe={settings.nameHe} nameEn={settings.nameEn} />
         </div>
+        {/* The full crest already carries the dedication and nasi lines, so they
+            are not repeated here. */}
         <hr className="rule-gold mx-auto my-6 max-w-sm" />
-        <p className="he font-hebrew text-sm text-walnut-600">{settings.dedicationHe}</p>
-        <p className="he font-hebrew text-sm text-walnut-600">{settings.nasiHe}</p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm">
           <span className="font-display text-lg font-semibold text-walnut-800">{fmtDate(iso, tz)}</span>
           <span className="text-gold-500" aria-hidden>·</span>
           <span className="he font-hebrew text-lg text-gold-700">{info.hebrewDateHe}</span>

@@ -148,9 +148,20 @@ Log in as the administrator and work through **Admin**:
 
 ### The crest
 
-Save the shul's artwork as `public/logo.png` and it appears in the header, on the
-homepage and on the board. Until then the site falls back to a typographic
-wordmark, so nothing looks broken.
+Three artwork files go in `public/`, each suited to where it appears:
+
+| Filename | What it should be | Where it appears |
+|---|---|---|
+| `logo-full.png` | The whole plate — crest, dedication, nasi line and address | Homepage, login and sign-up |
+| `logo-mark.png` | The crest on its own, no text beneath | Site header and footer |
+| `logo-mark-light.png` | The crest in the lighter, flatter gold | The shul display board, which is dark |
+| `icon.png` | A square 512×512 crop | Browser tab and phone home screens |
+
+Use PNGs with **transparent** backgrounds — a white rectangle shows as a pale box
+on the ivory site and a bright slab on the dark board. Anything missing falls back
+to the next best file and finally to a typographic wordmark, so nothing ever looks
+broken while you are still adding them. *Admin → Settings* lists which have
+landed. Full notes are in `public/README.md`.
 
 ### Roles
 
