@@ -101,14 +101,14 @@
   unicode-bidi: isolate;
 }
 
-/* The monitor in the shul is a dark board, deliberately unlike the website. */
+/* The shul monitor. Its ground and panels are drawn by BoardOrnament, so this
+   only sets the fallback colour behind them — headings take their colour from
+   the panel they sit on, not from here. A blanket heading rule would outrank
+   the utility classes on parchment and wash the text out. */
 .display-root {
-  background:
-    radial-gradient(ellipse at 50% -20%, #4A3418 0%, transparent 60%),
-    linear-gradient(165deg, #20160A 0%, #150E06 55%, #20160A 100%);
+  background: #3E2612;
   color: #FAF6EC;
 }
-.display-root h1, .display-root h2, .display-root h3 { color: #F8EFD3; }
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
