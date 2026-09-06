@@ -4,23 +4,26 @@ import { useEffect, useRef, useState } from 'react';
 import { CrestMark } from './CrestMark';
 
 /**
- * The shul's crest.
+ * The shul's crest, from the brand kit in `public/brand/`.
  *
- * Three artwork files live in `public/`, each suited to a different setting —
- * see `public/README.md`. Any that are missing fall back down the chain to the
- * next best, and finally to a typographic wordmark, so the site never shows a
- * broken image while the artwork is still being added.
+ * Each variant names the resolution it needs rather than always taking the
+ * largest file: the header shows the crest at about 50px tall, the board at
+ * 130px on a television, and the homepage the full plate at around 560px.
+ * Anything missing falls back down the chain, and finally to the drawn mark,
+ * so a page never shows a broken image.
  */
 export type CrestVariant = 'full' | 'mark' | 'mark-light';
 
-/** Preference order per variant: first file that loads wins. */
+const BRAND = '/brand';
+
+/** Preference order per variant: the first file that loads wins. */
 const SOURCES: Record<CrestVariant, string[]> = {
-  // The whole plate: crest, dedication, nasi and address.
-  full: ['/logo-full.png', '/logo.png', '/logo-mark.png'],
-  // Crest only, for tight spots like the site header.
-  mark: ['/logo-mark.png', '/logo-full.png', '/logo.png'],
-  // Crest only in the lighter gold, which is what reads on the dark board.
-  'mark-light': ['/logo-mark-light.png', '/logo-mark.png', '/logo-full.png', '/logo.png'],
+  // The whole plate — crest, dedication, nasi line and address.
+  full: [`${BRAND}/kte-logo-primary@2x.png`, `${BRAND}/kte-logo-primary.png`],
+  // Crest only, for the site header and footer.
+  mark: [`${BRAND}/kte-crest-mark.png`, `${BRAND}/kte-logo-primary.png`],
+  // Crest only at the size the shul monitor needs it.
+  'mark-light': [`${BRAND}/kte-crest-mark@3x.png`, `${BRAND}/kte-crest-mark.png`],
 };
 
 const HEIGHTS = {

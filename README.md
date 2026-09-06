@@ -163,20 +163,15 @@ Log in as the administrator and work through **Admin**:
 
 ### The crest
 
-Three artwork files go in `public/`, each suited to where it appears:
+The shul's brand kit lives in `public/brand/`. The site loads the full plate on
+the homepage, the crest on its own in the header and footer, and a larger crest
+on the display board, with the icon set for browser tabs. The rest of the kit —
+reverse, mono, grayscale, email and social crops — is kept alongside for the
+office to use elsewhere. `public/README.md` lists what goes where, and
+*Admin → Settings* shows whether each file is present.
 
-| Filename | What it should be | Where it appears |
-|---|---|---|
-| `logo-full.png` | The whole plate — crest, dedication, nasi line and address | Homepage, login and sign-up |
-| `logo-mark.png` | The crest on its own, no text beneath | Site header and footer |
-| `logo-mark-light.png` | The crest in the lighter, flatter gold | The shul display board, which is dark |
-| `icon.png` | A square 512×512 crop | Browser tab and phone home screens |
-
-Use PNGs with **transparent** backgrounds — a white rectangle shows as a pale box
-on the ivory site and a bright slab on the dark board. Anything missing falls back
-to the next best file and finally to a typographic wordmark, so nothing ever looks
-broken while you are still adding them. *Admin → Settings* lists which have
-landed. Full notes are in `public/README.md`.
+Anything missing falls back to the next best file and finally to a drawn
+cartouche, so a page never shows a broken image.
 
 ### Roles
 

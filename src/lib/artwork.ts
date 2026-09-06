@@ -2,12 +2,12 @@ import 'server-only';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** The crest files the site looks for, and what each is used for. */
+/** The brand-kit files the site actually loads, and where each appears. */
 export const ARTWORK: { file: string; label: string; usedFor: string }[] = [
-  { file: 'logo-full.png', label: 'Full crest', usedFor: 'Homepage, login and sign-up' },
-  { file: 'logo-mark.png', label: 'Crest only', usedFor: 'Site header and footer' },
-  { file: 'logo-mark-light.png', label: 'Crest, light gold', usedFor: 'The shul display board' },
-  { file: 'icon.png', label: 'Square icon', usedFor: 'Browser tab and phone home screens' },
+  { file: 'kte-logo-primary@2x.png', label: 'Full plate', usedFor: 'Homepage, login and sign-up' },
+  { file: 'kte-crest-mark.png', label: 'Crest only', usedFor: 'Site header and footer' },
+  { file: 'kte-crest-mark@3x.png', label: 'Crest, large', usedFor: 'The shul display board' },
+  { file: 'kte-icon-192.png', label: 'Square icon', usedFor: 'Browser tab and phone home screens' },
 ];
 
 /**
@@ -17,7 +17,7 @@ export const ARTWORK: { file: string; label: string; usedFor: string }[] = [
  */
 export function artworkPresence(): Record<string, boolean> | null {
   try {
-    const dir = join(process.cwd(), 'public');
+    const dir = join(process.cwd(), 'public', 'brand');
     if (!existsSync(dir)) return null;
     return Object.fromEntries(ARTWORK.map((a) => [a.file, existsSync(join(dir, a.file))]));
   } catch {
