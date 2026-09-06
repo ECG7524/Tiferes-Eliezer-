@@ -297,7 +297,7 @@ export const minyanim = sqliteTable(
     nameHe: text('name_he').default(''),
     // Which days this minyan runs. `weekday` = Mon-Fri excluding special days.
     dayType: text('day_type', {
-      enum: ['weekday', 'monday_thursday', 'sunday', 'friday', 'shabbos', 'yom_tov', 'rosh_chodesh', 'fast_day', 'erev_shabbos', 'motzei_shabbos'],
+      enum: ['weekday', 'monday_thursday', 'sunday', 'friday', 'shabbos', 'yom_tov', 'rosh_chodesh', 'fast_day', 'erev_shabbos', 'motzei_shabbos', 'selichos', 'sunday_thursday'],
     }).notNull().default('weekday'),
     // Fixed clock time, or an offset from a zman that moves with the year.
     timeType: text('time_type', { enum: ['fixed', 'relative'] }).notNull().default('fixed'),

@@ -85,11 +85,11 @@ export default async function SchedulePage({
                 {d.minyanim.length === 0 ? (
                   <p className="py-2 text-xs text-walnut-400">No minyanim listed.</p>
                 ) : (
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {d.minyanim.map((m) => (
-                      <li key={m.id} className="flex items-baseline justify-between gap-2 text-sm">
-                        <span className="min-w-0 truncate text-walnut-700">{m.name}</span>
-                        <span className="shrink-0 font-semibold tabular-nums text-walnut-800">
+                      <li key={m.id}>
+                        <span className="block text-xs leading-tight text-walnut-600">{m.name}</span>
+                        <span className="block font-semibold tabular-nums text-walnut-800">
                           {fmtTime(m.at, tz)}
                         </span>
                       </li>
@@ -100,11 +100,11 @@ export default async function SchedulePage({
                 {d.shiurim.length > 0 && (
                   <>
                     <hr className="my-3 border-gold-100" />
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-2">
                       {d.shiurim.map((s) => (
-                        <li key={s.id} className="flex items-baseline justify-between gap-2 text-xs">
-                          <span className="min-w-0 truncate text-gold-800">{s.title}</span>
-                          <span className="shrink-0 tabular-nums text-walnut-600">{fmtTime(s.at, tz)}</span>
+                        <li key={s.id} className="text-xs">
+                          <span className="block leading-tight text-gold-800">{s.title}</span>
+                          <span className="block tabular-nums text-walnut-500">{fmtTime(s.at, tz)}</span>
                         </li>
                       ))}
                     </ul>
@@ -137,7 +137,7 @@ export default async function SchedulePage({
                     <tbody>
                       {list.map((m) => (
                         <tr key={m.id}>
-                          <td className="font-medium text-walnut-700">
+                          <td className="whitespace-nowrap font-medium text-walnut-700">
                             {m.name}
                             {m.nameHe && <span className="he ml-2 font-hebrew text-xs text-gold-700">{m.nameHe}</span>}
                           </td>

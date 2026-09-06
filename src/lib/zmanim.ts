@@ -1,6 +1,6 @@
 import { GeoLocation, ComplexZmanimCalendar, JewishCalendar, HebrewDateFormatter, YomiCalculator } from 'kosher-zmanim';
 import { DateTime } from 'luxon';
-import { HDate, HebrewCalendar, gematriya } from '@hebcal/core';
+import { HDate, HebrewCalendar, gematriya, months } from '@hebcal/core';
 import type { Settings } from '@/db/schema';
 
 export type ZmanId =
@@ -43,6 +43,8 @@ export interface DayInfo {
   isAssurBemelacha: boolean;
   isErevShabbos: boolean;
   isMotzeiShabbos: boolean;
+  /** Within the Selichos season, and a day Selichos are actually said. */
+  isSelichos: boolean;
 }
 
 export interface ZmanimDay {
@@ -223,7 +225,39 @@ export function getDayInfo(iso: string, s: Settings): DayInfo {
     isAssurBemelacha: isShabbos || safeBool(() => jc.isYomTovAssurBemelacha()),
     isErevShabbos: dow === 5,
     isMotzeiShabbos: dow === 6,
+    isSelichos: isSelichosDay(hd),
   };
+}
+
+/**
+ * Whether Selichos are said today.
+ *
+ * Ashkenaz begins on the Sunday before Rosh Hashana, but when Rosh Hashana
+ * falls on a Monday or Tuesday that would leave only a day or two, so it starts
+ * the Sunday a week earlier. They run through Erev Yom Kippur, and are not said
+ * on Shabbos or on Rosh Hashana itself.
+ */
+function isSelichosDay(hd: HDate): boolean {
+  const dow = hd.getDay();
+  if (dow === 6) return false; // Shabbos
+
+  // Selichos for a given Rosh Hashana can begin in the Hebrew year before it,
+  // so test the season belonging to whichever Tishrei is in play.
+  const tishreiYear = hd.getMonth() === months.ELUL ? hd.getFullYear() + 1 : hd.getFullYear();
+  const roshHashana = new HDate(1, months.TISHREI, tishreiYear);
+
+  const rhDow = roshHashana.getDay();
+  const daysBack = rhDow + (rhDow === 1 || rhDow === 2 ? 7 : 0);
+  const start = roshHashana.subtract(daysBack, 'd');
+  const end = new HDate(9, months.TISHREI, tishreiYear); // Erev Yom Kippur
+
+  const abs = hd.abs();
+  if (abs < start.abs() || abs > end.abs()) return false;
+
+  // Rosh Hashana has its own tefillos; Selichos resume after it.
+  if (hd.getMonth() === months.TISHREI && (hd.getDate() === 1 || hd.getDate() === 2)) return false;
+
+  return true;
 }
 
 function safeBool(fn: () => boolean): boolean {
@@ -385,18 +419,24 @@ export function dayTypesFor(info: DayInfo): Set<string> {
   } else if (!isYomTovDay) {
     if (dow === 0) out.add('sunday');
     if (dow >= 1 && dow <= 5) out.add('weekday');
+    // The usual grouping for an evening minyan, since Erev Shabbos differs.
+    if (dow >= 0 && dow <= 4) out.add('sunday_thursday');
     if (dow === 1 || dow === 4) out.add('monday_thursday');
     if (dow === 5) { out.add('friday'); out.add('erev_shabbos'); }
   }
 
   if (info.isRoshChodesh) out.add('rosh_chodesh');
   if (info.isFastDay) out.add('fast_day');
+  // An overlay rather than a replacement: a Selichos morning still has its
+  // ordinary Shacharis after it.
+  if (info.isSelichos) out.add('selichos');
 
   return out;
 }
 
 export const DAY_TYPE_LABELS: Record<string, string> = {
   weekday: 'Weekdays (Mon–Fri)',
+  sunday_thursday: 'Sunday–Thursday',
   monday_thursday: 'Monday & Thursday',
   sunday: 'Sunday',
   friday: 'Friday',
@@ -406,6 +446,7 @@ export const DAY_TYPE_LABELS: Record<string, string> = {
   yom_tov: 'Yom Tov',
   rosh_chodesh: 'Rosh Chodesh',
   fast_day: 'Fast Days',
+  selichos: 'Selichos season (Elul & Aseres Yemei Teshuva)',
 };
 
 /* ------------------------------------------------------------------ */
