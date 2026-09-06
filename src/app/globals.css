@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-hebrew: 'Frank Ruhl Libre', 'David Libre', 'Times New Roman', serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-ivory-100 text-walnut-800 font-body antialiased;
+    margin: 0;
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(201, 162, 39, 0.07), transparent 45%),
+      radial-gradient(circle at 88% 4%, rgba(201, 162, 39, 0.05), transparent 40%);
+    background-attachment: fixed;
+  }
+  /* The shul monitor fills the screen exactly and must never scroll. */
+  body:has(.display-root) {
+    @apply overflow-hidden bg-[#20160A];
+    background-image: none;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold tracking-tight text-walnut-800;
+  }
+  :lang(he), .he {
+    font-family: var(--font-hebrew);
+    direction: rtl;
+  }
+  /* Keyboard users should always be able to see where they are. */
+  :focus-visible {
+    outline: 2px solid theme('colors.gold.600');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-gold-200/70 bg-white/80 shadow-crest backdrop-blur-sm;
+  }
+  .card-pad { @apply p-5 sm:p-6; }
+
+  .rule-gold {
+    @apply h-px w-full border-0 bg-gold-rule;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+           transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-walnut-700 text-ivory-50 hover:bg-walnut-800;
+  }
+  .btn-gold {
+    @apply btn bg-gold-500 text-walnut-900 hover:bg-gold-400;
+  }
+  .btn-ghost {
+    @apply btn border border-gold-300 bg-transparent text-walnut-700 hover:bg-gold-50;
+  }
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-walnut-500;
+  }
+  .input, .select, .textarea {
+    @apply w-full rounded-lg border border-gold-300 bg-white px-3 py-2 text-sm text-walnut-800
+           placeholder:text-walnut-400 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500;
+  }
+  .textarea { @apply min-h-[5rem] leading-relaxed; }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-gold-700;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .table-shul { @apply w-full border-collapse text-sm; }
+  .table-shul th {
+    @apply border-b border-gold-300 px-3 py-2.5 text-left text-xs font-semibold
+           uppercase tracking-wider text-walnut-500;
+  }
+  .table-shul td { @apply border-b border-gold-100 px-3 py-2.5 align-middle; }
+  .table-shul tbody tr:hover { @apply bg-gold-50/60; }
+}
+
+/* The monitor in the shul is a dark board, deliberately unlike the website. */
+.display-root {
+  background:
+    radial-gradient(ellipse at 50% -20%, #4A3418 0%, transparent 60%),
+    linear-gradient(165deg, #20160A 0%, #150E06 55%, #20160A 100%);
+  color: #FAF6EC;
+}
+.display-root h1, .display-root h2, .display-root h3 { color: #F8EFD3; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-up { animation: fade-up 0.45s ease-out both; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .card { border-color: #ccc; box-shadow: none; }
+}
