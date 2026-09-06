@@ -1,0 +1,21 @@
+KEHAL TIFERES ELIEZER — COLOR PALETTE
+Sampled directly from the crest artwork.
+
+NAME              HEX       RGB            CMYK           ROLE
+Bronze Shadow     #40230D   64  35  13     0 45 80 75     Body text, dark backgrounds
+Antique Bronze    #6A421C   106 66  28     0 38 74 58     Headings, links, secondary text
+Old Gold          #90612E   144 97  46     0 33 68 44     Rules and borders on ivory
+Tiferes Gold      #B28246   178 130 70     0 27 61 30     Primary brand gold, accents, 1-color print
+Champagne         #D7BD94   215 189 148    0 12 31 16     Hairlines, dividers, type on dark bronze
+Parchment         #EBDCC0   235 220 192    0  6 18  8     Tinted panels, table fills, stock
+Ivory             #F3EAD6   243 234 214    0  4 12  5     Default page background
+Highlight Cream   #FCF6E6   252 246 230    0  2  9  1     Cards and callouts on ivory
+
+SPOT / FOIL — starting points only, confirm against a physical chip book:
+  Metallic gold foil ......... Pantone 872 C  (873 C for a warmer gold)
+  Tiferes Gold as flat ink ... Pantone 4655 C
+  Bronze Shadow .............. Pantone 4625 C
+  Parchment stock ............ Pantone 7499 C
+
+DO NOT use Tiferes Gold for body text on ivory — it fails contrast.
+DO NOT put Champagne on Parchment — not enough separation to read.

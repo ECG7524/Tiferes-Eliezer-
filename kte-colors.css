@@ -1,0 +1,11 @@
+/* Kehal Tiferes Eliezer — brand palette, sampled from the crest artwork */
+:root{
+  --kte-bronze-shadow:  #40230D; /* body text, dark grounds        */
+  --kte-antique-bronze: #6A421C; /* headings, links                */
+  --kte-old-gold:       #90612E; /* rules that must hold on ivory  */
+  --kte-tiferes-gold:   #B28246; /* primary brand gold             */
+  --kte-champagne:      #D7BD94; /* hairlines, type on dark        */
+  --kte-parchment:      #EBDCC0; /* tinted panels, stock           */
+  --kte-ivory:          #F3EAD6; /* default page background        */
+  --kte-cream:          #FCF6E6; /* cards on ivory                 */
+}
