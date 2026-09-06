@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { DateTime } from 'luxon';
 import type { DisplayData } from '@/lib/displayData';
 import { Crest } from './Crest';
-import { FiligreeEdges, Flourish, Panel, BoardGround } from './BoardOrnament';
+import { FiligreeEdges, Flourish, Fleuron, Panel, BoardGround, GOLD, GOLD_DEEP, WINE, WINE_DEEP, WINE_LIGHT } from './BoardOrnament';
 
 /** How often the board asks the server for fresh data. */
 const POLL_MS = 60_000;
@@ -153,7 +153,10 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
         ) : (
           <div className="mt-4 flex min-h-0 flex-1 gap-5">
             <Panel title={t('זמני היום', 'Zmanim')} className="w-[25%]">
-              <dl className={data.zmanim.length > 11 ? 'text-[0.86em]' : ''}>
+              <dl
+                className="divide-y divide-[#9A7A1C]/25"
+                style={{ fontSize: `${zmanimScale(data.zmanim.length)}em` }}
+              >
                 {data.zmanim.map((z) => (
                   <Row
                     key={z.id}
@@ -197,11 +200,14 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
               ) : (
                 <ul className="space-y-5">
                   {data.learning.map((l) => (
-                    <li key={l.key} className="border-b border-walnut-900/10 pb-4 last:border-0 last:pb-0">
-                      <p className="text-base uppercase tracking-wider text-gold-800">
+                    <li key={l.key} className="border-b border-[#9A7A1C]/25 pb-4 last:border-0 last:pb-0">
+                      <p
+                        className="text-base font-semibold uppercase tracking-[0.14em]"
+                        style={{ color: WINE }}
+                      >
                         {he ? l.labelHe : l.labelEn}
                       </p>
-                      <p className={`mt-0.5 text-2xl font-medium leading-snug text-walnut-800 2xl:text-[1.7rem] ${he ? 'font-hebrew' : ''}`}>
+                      <p className={`mt-1 text-[1.7rem] font-semibold leading-snug text-walnut-900 2xl:text-[2rem] ${he ? 'font-hebrew' : ''}`}>
                         {he ? l.valueHe : l.valueEn}
                       </p>
                     </li>
@@ -226,23 +232,43 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
                   return (
                     <div
                       key={i}
-                      className={`min-w-[8.5rem] rounded-lg px-5 py-1.5 text-center ring-1 ${
-                        isNext
-                          ? 'bg-gold-300/70 ring-walnut-600'
-                          : 'bg-walnut-900/[0.05] ring-walnut-900/15'
-                      }`}
+                      className="min-w-[10.5rem] overflow-hidden rounded-lg text-center"
+                      style={{
+                        boxShadow: isNext
+                          ? `0 0 0 2px ${GOLD}, 0 6px 18px -4px rgba(0,0,0,.45)`
+                          : `0 0 0 1.5px ${GOLD_DEEP}66, 0 3px 10px -4px rgba(0,0,0,.3)`,
+                      }}
                     >
-                      <p className={`text-xl leading-tight text-walnut-700 2xl:text-2xl ${he ? 'font-hebrew' : ''}`}>
+                      <p
+                        className={`px-4 py-[3px] text-xl leading-tight text-gold-100 2xl:text-2xl ${he ? 'font-hebrew' : ''}`}
+                        style={{
+                          background: isNext
+                            ? `linear-gradient(180deg, ${WINE_LIGHT}, ${WINE})`
+                            : `linear-gradient(180deg, ${WINE}, ${WINE_DEEP})`,
+                        }}
+                      >
                         {he ? m.nameHe || m.name : m.name}
                       </p>
-                      <p className="ltr-run font-display text-4xl font-bold leading-tight tabular-nums text-walnut-900 2xl:text-5xl">
-                        {m.at ? DateTime.fromMillis(m.at, { zone: tz }).toFormat('h:mm') : '—'}
-                      </p>
-                      {isNext && (
-                        <p className="bidi-isolate text-sm font-semibold text-walnut-700">
-                          {countdown(m.at!, now, tz, t)}
+                      <div
+                        className="px-4 py-1"
+                        style={{
+                          background: isNext
+                            ? 'linear-gradient(180deg, #FFF6DC, #F0DDAA)'
+                            : 'linear-gradient(180deg, #FFFDF4, #F2E5C2)',
+                        }}
+                      >
+                        <p
+                          className="ltr-run font-display text-[2.9rem] font-bold leading-none tabular-nums 2xl:text-[3.4rem]"
+                          style={{ color: WINE_DEEP }}
+                        >
+                          {m.at ? DateTime.fromMillis(m.at, { zone: tz }).toFormat('h:mm') : '—'}
                         </p>
-                      )}
+                        {isNext && (
+                          <p className="bidi-isolate pb-0.5 text-sm font-semibold" style={{ color: WINE }}>
+                            {countdown(m.at!, now, tz, t)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -253,7 +279,13 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
 
         {/* ---------------- Tefillah band ---------------- */}
         {data.tefillah && !panel?.fill && (
-          <div className="mt-3 flex shrink-0 flex-wrap items-center justify-center gap-x-7 gap-y-1">
+          <div
+            className="mt-4 flex shrink-0 flex-wrap items-center justify-center gap-x-8 gap-y-1 rounded-lg px-6 py-1.5"
+            style={{
+              background: `linear-gradient(180deg, ${WINE_LIGHT}, ${WINE_DEEP})`,
+              boxShadow: `0 0 0 1.5px ${GOLD}, 0 6px 20px -8px rgba(0,0,0,.7)`,
+            }}
+          >
             {data.tefillah.insertions.map((ins) => (
               <span key={ins.key} className="text-2xl font-semibold text-gold-100 2xl:text-[1.6rem]">
                 {he ? ins.he : ins.en}
@@ -313,7 +345,11 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
 
 /* ------------------------------------------------------------------ */
 
-/** One label/time line. `highlight` marks the minyan that is coming next. */
+/**
+ * One label and time. The time sits in its own bordered chip rather than
+ * floating at the end of the row — it is the thing being read across a room,
+ * and a cell gives it an edge to find.
+ */
 function Row({
   label,
   sub,
@@ -330,21 +366,40 @@ function Row({
 }) {
   return (
     <div
-      className={`flex items-baseline justify-between gap-3 rounded px-2 py-[0.25rem] ${
-        highlight ? 'bg-gold-300/60 ring-1 ring-walnut-600' : 'odd:bg-walnut-900/[0.045]'
+      className={`flex items-center justify-between gap-3 rounded-md px-2 py-[0.1em] ${
+        highlight ? 'ring-1 ring-walnut-600' : ''
       }`}
+      style={highlight ? { background: 'rgba(201,162,39,.28)' } : undefined}
     >
       <dt className="min-w-0">
-        <span className={`block truncate text-[1.5em] text-walnut-700 ${hebrewFont ? 'font-hebrew' : ''}`}>
+        <span className={`block truncate text-[1.45em] font-medium text-walnut-800 ${hebrewFont ? 'font-hebrew' : ''}`}>
           {label}
         </span>
-        {sub && <span className="bidi-isolate block truncate text-sm text-walnut-500">{sub}</span>}
+        {sub && <span className="bidi-isolate block truncate text-[0.8em] text-walnut-500">{sub}</span>}
       </dt>
-      <dd className="ltr-run shrink-0 font-display text-[1.75em] font-bold tabular-nums text-walnut-900">
+      <dd
+        className="ltr-run shrink-0 rounded px-[0.5em] py-[0.05em] font-display text-[1.7em] font-bold tabular-nums"
+        style={{
+          color: WINE_DEEP,
+          background: 'linear-gradient(180deg, rgba(255,255,255,.85), rgba(226,205,158,.55))',
+          boxShadow: `inset 0 0 0 1px ${GOLD_DEEP}55, 0 1px 2px rgba(0,0,0,.12)`,
+        }}
+      >
         {value}
       </dd>
     </div>
   );
+}
+
+/**
+ * How large the zmanim can be set and still all fit the panel. Dropping one
+ * off the bottom would be worse than setting them a little smaller.
+ */
+function zmanimScale(count: number): number {
+  if (count <= 9) return 1.05;
+  if (count <= 11) return 0.95;
+  if (count <= 13) return 0.83;
+  return 0.74;
 }
 
 function countdown(at: number, now: number, tz: string, t: (he: string, en: string) => string): string {
@@ -390,8 +445,12 @@ function buildPanels(data: DisplayData, t: (he: string, en: string) => string): 
             />
           </div>
         ) : (
-          <div dir="auto" className="text-center">
-            <h3 className={`text-5xl font-bold leading-tight 2xl:text-6xl ${a.priority === 'urgent' ? 'text-rose-800' : 'text-walnut-900'}`}>
+          <div dir="auto" className="flex flex-col items-center text-center">
+            <Fleuron width={150} className="mb-5 opacity-80" />
+            <h3
+              className="text-5xl font-bold leading-tight 2xl:text-6xl"
+              style={{ color: a.priority === 'urgent' ? '#8C1220' : WINE_DEEP }}
+            >
               {a.title}
             </h3>
             {a.body && (
@@ -399,6 +458,7 @@ function buildPanels(data: DisplayData, t: (he: string, en: string) => string): 
                 {a.body}
               </p>
             )}
+            <Fleuron width={150} className="mt-6 rotate-180 opacity-80" />
           </div>
         ),
     });
