@@ -41,6 +41,7 @@ export default {
         display: ['var(--font-display)', 'Georgia', 'Cambria', 'serif'],
         body: ['var(--font-body)', 'system-ui', 'sans-serif'],
         hebrew: ['var(--font-hebrew)', 'David Libre', 'Narkisim', 'serif'],
+        'hebrew-display': ['var(--font-hebrew-display)', 'Suez One', 'serif'],
       },
       boxShadow: {
         crest: '0 1px 2px rgba(74,52,24,.06), 0 8px 24px -12px rgba(74,52,24,.25)',

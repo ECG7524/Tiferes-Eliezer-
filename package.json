@@ -13,6 +13,10 @@
     "setup": "npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
+    "@fontsource/david-libre": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/suez-one": "^5.3.0",
     "@hebcal/core": "^5.4.9",
     "@hebcal/learning": "^6.11.2",
     "@hebcal/leyning": "^10.0.0",

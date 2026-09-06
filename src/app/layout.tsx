@@ -1,4 +1,21 @@
 import type { Metadata, Viewport } from 'next';
+// Self-hosted so the board keeps its typography with no network at all — a
+// monitor in a shul should not lose its fonts when the wifi drops.
+import '@fontsource/david-libre/hebrew-400.css';
+import '@fontsource/david-libre/hebrew-500.css';
+import '@fontsource/david-libre/hebrew-700.css';
+import '@fontsource/david-libre/latin-400.css';
+import '@fontsource/david-libre/latin-700.css';
+import '@fontsource/suez-one/hebrew-400.css';
+import '@fontsource/suez-one/latin-400.css';
+import '@fontsource/playfair-display/latin-500.css';
+import '@fontsource/playfair-display/latin-600.css';
+import '@fontsource/playfair-display/latin-700.css';
+import '@fontsource/playfair-display/latin-800.css';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+import '@fontsource/inter/latin-600.css';
+import '@fontsource/inter/latin-700.css';
 import './globals.css';
 import { getSettings } from '@/lib/settings';
 
@@ -35,16 +52,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* A plain stylesheet link rather than next/font, so a build never
-            depends on reaching Google; the serif fallbacks are close enough. */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body>{children}</body>
     </html>
   );

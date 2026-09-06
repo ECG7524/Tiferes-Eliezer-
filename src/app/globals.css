@@ -3,9 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  /* Playfair's figures are the ones being read across a room, so they carry
+     every time on the board. */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-hebrew: 'Frank Ruhl Libre', 'David Libre', 'Times New Roman', serif;
+  /* David Libre is the face a printed luach is set in. */
+  --font-hebrew: 'David Libre', 'Frank Ruhl Libre', 'Narkisim', serif;
+  /* Suez One for headlines — the parsha needs the weight. */
+  --font-hebrew-display: 'Suez One', 'David Libre', serif;
 }
 
 @layer base {

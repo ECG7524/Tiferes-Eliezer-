@@ -84,7 +84,7 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
           <div className="min-w-0 flex-1 text-center">
             {data.today.parshaHe ? (
               <p
-                className="he font-hebrew text-[3.6rem] font-bold leading-none text-[#FBEFCF] 2xl:text-7xl"
+                className="he font-hebrew-display text-[3.5rem] leading-none text-[#FBEFCF] 2xl:text-[4.4rem]"
                 style={{ textShadow: '0 2px 10px rgba(0,0,0,.55)' }}
               >
                 {he ? data.today.parshaHe : `Parashas ${data.today.parshaEn}`}
@@ -92,7 +92,7 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
             ) : (
               data.today.holidays[0] && (
                 <p
-                  className="he font-hebrew text-[3.2rem] font-bold leading-none text-[#FBEFCF] 2xl:text-6xl"
+                  className="he font-hebrew-display text-[3.1rem] leading-none text-[#FBEFCF] 2xl:text-[3.9rem]"
                   style={{ textShadow: '0 2px 10px rgba(0,0,0,.55)' }}
                 >
                   {he ? data.today.holidays[0].he : data.today.holidays[0].en}
@@ -146,135 +146,192 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
         )}
 
         {/* ---------------- Body ---------------- */}
+        {/* A flyer is a finished design and unreadable at panel width, so for
+            its slot it takes the whole body. */}
         {panel?.fill ? (
-          <div className="animate-fade-up mt-3 flex min-h-0 flex-1 items-center justify-center">
+          <div className="animate-fade-up mt-4 flex min-h-0 flex-1 items-center justify-center">
             {panel.render(tz)}
           </div>
         ) : (
-          <div className="mt-4 flex min-h-0 flex-1 gap-5">
-            <Panel title={t('זמני היום', 'Zmanim')} className="w-[25%]">
-              <dl
-                className="divide-y divide-[#9A7A1C]/25"
-                style={{ fontSize: `${zmanimScale(data.zmanim.length)}em` }}
-              >
-                {data.zmanim.map((z) => (
-                  <Row
-                    key={z.id}
-                    label={he ? z.labelHe : z.label}
-                    hebrewFont={he}
-                    value={
-                      z.isDuration
-                        ? z.minutes != null ? `${z.minutes}${t(' דק׳', ' min')}` : '—'
-                        : z.at ? DateTime.fromMillis(z.at, { zone: tz }).toFormat('h:mm') : '—'
-                    }
-                  />
-                ))}
-              </dl>
-            </Panel>
-
-            <Panel title={panel?.title ?? t('הודעות', 'Notices')} className="flex-1" bodyClassName="flex flex-col justify-center">
-              {panel ? (
-                <div key={`${panel.key}-${panelIndex}`} className="animate-fade-up">
-                  {panel.render(tz)}
-                </div>
-              ) : (
-                <p className="he text-center font-hebrew text-4xl text-walnut-300">ברוכים הבאים</p>
-              )}
-              {panels.length > 1 && (
-                <div className="mt-4 flex justify-center gap-1.5">
-                  {panels.map((p, i) => (
-                    <span
-                      key={p.key}
-                      className={`h-1.5 rounded-full transition-all ${
-                        i === panelIndex % panels.length ? 'w-7 bg-gold-700' : 'w-1.5 bg-walnut-900/25'
-                      }`}
+          <>
+            <div className="mt-5 flex min-h-0 flex-1 gap-6">
+              {/* Zmanim is a long list, so it takes a full-height column of its
+                  own rather than being squeezed into one row's share. */}
+              <Panel title={t('זמני היום', 'Zmanim')} className="w-[23%]">
+                <dl
+                  className="divide-y divide-[#9A7A1C]/25"
+                  style={{ fontSize: `${zmanimScale(data.zmanim.length)}em` }}
+                >
+                  {data.zmanim.map((z) => (
+                    <Row
+                      key={z.id}
+                      label={he ? z.labelHe : z.label}
+                      hebrewFont={he}
+                      value={
+                        z.isDuration
+                          ? z.minutes != null ? `${z.minutes}${t(' דק׳', ' min')}` : '—'
+                          : z.at ? DateTime.fromMillis(z.at, { zone: tz }).toFormat('h:mm') : '—'
+                      }
                     />
                   ))}
-                </div>
-              )}
-            </Panel>
+                </dl>
+              </Panel>
 
-            <Panel title={t('לימוד יומי', 'Daily Learning')} className="w-[25%]" bodyClassName="flex flex-col justify-center">
-              {data.learning.length === 0 ? (
-                <p className="py-3 text-center text-lg text-walnut-400">—</p>
-              ) : (
-                <ul className="space-y-5">
-                  {data.learning.map((l) => (
-                    <li key={l.key} className="border-b border-[#9A7A1C]/25 pb-4 last:border-0 last:pb-0">
-                      <p
-                        className="text-base font-semibold uppercase tracking-[0.14em]"
-                        style={{ color: WINE }}
-                      >
-                        {he ? l.labelHe : l.labelEn}
+              <div className="flex min-h-0 flex-1 flex-col gap-8">
+                {/* Davening leads, where the eye lands first. */}
+                <div className="flex min-h-0 flex-[1.05] gap-6">
+                  <Panel
+                    title={t('זמני התפילה', 'Davening')}
+                    className="flex-1"
+                    bodyClassName="flex flex-col justify-center"
+                  >
+                    {data.minyanimToday.length === 0 ? (
+                      <p className="py-2 text-center text-2xl text-walnut-400">
+                        {t('אין תפילות רשומות', 'No minyanim listed')}
                       </p>
-                      <p className={`mt-1 text-[1.7rem] font-semibold leading-snug text-walnut-900 2xl:text-[2rem] ${he ? 'font-hebrew' : ''}`}>
-                        {he ? l.valueHe : l.valueEn}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Panel>
-          </div>
-        )}
-
-        {/* ---------------- Davening, full width ---------------- */}
-        {!panel?.fill && (
-          <Panel title={t('זמני התפילה', 'Davening')} arched={false} className="mt-5 shrink-0" bodyClassName="pt-1 pb-2">
-            {data.minyanimToday.length === 0 ? (
-              <p className="py-2 text-center text-xl text-walnut-400">
-                {t('אין תפילות רשומות', 'No minyanim listed')}
-              </p>
-            ) : (
-              <div className="flex flex-wrap items-end justify-center gap-x-12 gap-y-2">
-                {data.minyanimToday.map((m, i) => {
-                  const isNext = nextMinyan != null && m.at === nextMinyan.at && m.name === nextMinyan.name;
-                  return (
-                    <div
-                      key={i}
-                      className="min-w-[10.5rem] overflow-hidden rounded-lg text-center"
-                      style={{
-                        boxShadow: isNext
-                          ? `0 0 0 2px ${GOLD}, 0 6px 18px -4px rgba(0,0,0,.45)`
-                          : `0 0 0 1.5px ${GOLD_DEEP}66, 0 3px 10px -4px rgba(0,0,0,.3)`,
-                      }}
-                    >
-                      <p
-                        className={`px-4 py-[3px] text-xl leading-tight text-gold-100 2xl:text-2xl ${he ? 'font-hebrew' : ''}`}
-                        style={{
-                          background: isNext
-                            ? `linear-gradient(180deg, ${WINE_LIGHT}, ${WINE})`
-                            : `linear-gradient(180deg, ${WINE}, ${WINE_DEEP})`,
-                        }}
-                      >
-                        {he ? m.nameHe || m.name : m.name}
-                      </p>
-                      <div
-                        className="px-4 py-1"
-                        style={{
-                          background: isNext
-                            ? 'linear-gradient(180deg, #FFF6DC, #F0DDAA)'
-                            : 'linear-gradient(180deg, #FFFDF4, #F2E5C2)',
-                        }}
-                      >
-                        <p
-                          className="ltr-run font-display text-[2.9rem] font-bold leading-none tabular-nums 2xl:text-[3.4rem]"
-                          style={{ color: WINE_DEEP }}
-                        >
-                          {m.at ? DateTime.fromMillis(m.at, { zone: tz }).toFormat('h:mm') : '—'}
-                        </p>
-                        {isNext && (
-                          <p className="bidi-isolate pb-0.5 text-sm font-semibold" style={{ color: WINE }}>
-                            {countdown(m.at!, now, tz, t)}
-                          </p>
-                        )}
+                    ) : (
+                      <div className="flex flex-wrap items-stretch justify-center gap-4">
+                        {data.minyanimToday.map((m, i) => {
+                          const isNext = nextMinyan != null && m.at === nextMinyan.at && m.name === nextMinyan.name;
+                          return (
+                            <div
+                              key={i}
+                              className="min-w-[10.5rem] overflow-hidden rounded-lg text-center"
+                              style={{
+                                boxShadow: isNext
+                                  ? `0 0 0 2.5px ${GOLD}, 0 8px 22px -6px rgba(0,0,0,.5)`
+                                  : `0 0 0 1.5px ${GOLD_DEEP}66, 0 3px 12px -5px rgba(0,0,0,.35)`,
+                              }}
+                            >
+                              <p
+                                className={`px-4 py-[3px] text-[1.45rem] leading-tight text-gold-100 ${he ? 'font-hebrew' : ''}`}
+                                style={{
+                                  background: isNext
+                                    ? `linear-gradient(180deg, ${WINE_LIGHT}, ${WINE})`
+                                    : `linear-gradient(180deg, ${WINE}, ${WINE_DEEP})`,
+                                }}
+                              >
+                                {he ? m.nameHe || m.name : m.name}
+                              </p>
+                              <div
+                                className="px-5 py-1"
+                                style={{
+                                  background: isNext
+                                    ? 'linear-gradient(180deg, #FFF6DC, #EFDCA6)'
+                                    : 'linear-gradient(180deg, #FFFDF4, #F2E5C2)',
+                                }}
+                              >
+                                <p
+                                  className="ltr-run font-display text-[3rem] font-bold leading-none tabular-nums"
+                                  style={{ color: WINE_DEEP }}
+                                >
+                                  {m.at ? DateTime.fromMillis(m.at, { zone: tz }).toFormat('h:mm') : '—'}
+                                </p>
+                                {isNext && (
+                                  <p className="bidi-isolate pb-0.5 text-sm font-semibold" style={{ color: WINE }}>
+                                    {countdown(m.at!, now, tz, t)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </div>
-                  );
-                })}
+                    )}
+                  </Panel>
+
+                  <Panel
+                    title={t('לימוד יומי', 'Daily Learning')}
+                    className="w-[33%]"
+                    bodyClassName="flex flex-col justify-center"
+                  >
+                    {data.learning.length === 0 ? (
+                      <p className="py-3 text-center text-lg text-walnut-400">—</p>
+                    ) : (
+                      <ul className="space-y-2.5">
+                        {data.learning.map((l) => (
+                          <li key={l.key} className="border-b border-[#9A7A1C]/25 pb-2 last:border-0 last:pb-0">
+                            <p className="text-[0.95rem] font-semibold uppercase tracking-[0.12em]" style={{ color: WINE }}>
+                              {he ? l.labelHe : l.labelEn}
+                            </p>
+                            <p className={`text-[1.5rem] font-semibold leading-tight text-walnut-900 ${he ? 'font-hebrew' : ''}`}>
+                              {he ? l.valueHe : l.valueEn}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </Panel>
+                </div>
+
+                {/* Announcements have a home of their own rather than sharing a
+                    rotating slot, with today's shiurim beside them. */}
+                <div className="flex min-h-0 flex-1 gap-6">
+                  <Panel
+                    title={panel?.title ?? t('הודעות', 'Notices')}
+                    className="flex-1"
+                    bodyClassName="flex flex-col justify-center"
+                  >
+                    {panel ? (
+                      <div key={`${panel.key}-${panelIndex}`} className="animate-fade-up min-h-0">
+                        {panel.render(tz)}
+                      </div>
+                    ) : (
+                      <p className="he text-center font-hebrew text-4xl text-walnut-300">ברוכים הבאים</p>
+                    )}
+                    {panels.length > 1 && (
+                      <div className="mt-3 flex shrink-0 justify-center gap-1.5">
+                        {panels.map((p, i) => (
+                          <span
+                            key={p.key}
+                            className={`h-1.5 rounded-full transition-all ${
+                              i === panelIndex % panels.length ? 'w-8 bg-gold-700' : 'w-1.5 bg-walnut-900/25'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </Panel>
+
+                  {data.shiurimToday.length > 0 && (
+                    <Panel
+                      title={t('שיעורים היום', "Today's Shiurim")}
+                      className="w-[36%]"
+                      bodyClassName="flex flex-col justify-center"
+                    >
+                      <ul className="space-y-2">
+                        {data.shiurimToday.map((s, i) => (
+                          <li
+                            key={i}
+                            className="flex items-baseline justify-between gap-4 border-b border-[#9A7A1C]/25 pb-1.5 last:border-0 last:pb-0"
+                          >
+                            <span className="min-w-0">
+                              <span className={`block truncate text-[1.35rem] font-semibold leading-tight text-walnut-900 ${he ? 'font-hebrew' : ''}`}>
+                                {he ? s.titleHe || s.title : s.title}
+                              </span>
+                              <span dir="auto" className="block truncate text-sm text-walnut-500">
+                                {[s.maggidShiur, s.location].filter(Boolean).join(' · ')}
+                              </span>
+                            </span>
+                            <span
+                              className="ltr-run shrink-0 rounded px-2 font-display text-[1.5rem] font-bold tabular-nums"
+                              style={{
+                                color: WINE_DEEP,
+                                background: 'linear-gradient(180deg, rgba(255,255,255,.85), rgba(226,205,158,.55))',
+                                boxShadow: `inset 0 0 0 1px ${GOLD_DEEP}55`,
+                              }}
+                            >
+                              {s.at ? DateTime.fromMillis(s.at, { zone: tz }).toFormat('h:mm') : '—'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </Panel>
+                  )}
+                </div>
               </div>
-            )}
-          </Panel>
+            </div>
+          </>
         )}
 
         {/* ---------------- Tefillah band ---------------- */}
@@ -396,10 +453,10 @@ function Row({
  * off the bottom would be worse than setting them a little smaller.
  */
 function zmanimScale(count: number): number {
-  if (count <= 9) return 1.05;
-  if (count <= 11) return 0.95;
-  if (count <= 13) return 0.83;
-  return 0.74;
+  if (count <= 9) return 0.98;
+  if (count <= 11) return 0.86;
+  if (count <= 13) return 0.76;
+  return 0.68;
 }
 
 function countdown(at: number, now: number, tz: string, t: (he: string, en: string) => string): string {
@@ -446,47 +503,21 @@ function buildPanels(data: DisplayData, t: (he: string, en: string) => string): 
           </div>
         ) : (
           <div dir="auto" className="flex flex-col items-center text-center">
-            <Fleuron width={150} className="mb-5 opacity-80" />
+            <Fleuron width={120} className="mb-2.5 opacity-75" />
             <h3
-              className="text-5xl font-bold leading-tight 2xl:text-6xl"
+              className="text-[2.6rem] font-bold leading-tight"
               style={{ color: a.priority === 'urgent' ? '#8C1220' : WINE_DEEP }}
             >
               {a.title}
             </h3>
             {a.body && (
-              <p dir="auto" className="mt-5 whitespace-pre-line text-3xl leading-snug text-walnut-700 2xl:text-4xl">
+              <p dir="auto" className="mt-2 whitespace-pre-line text-[1.6rem] leading-snug text-walnut-700">
                 {a.body}
               </p>
             )}
-            <Fleuron width={150} className="mt-6 rotate-180 opacity-80" />
+            <Fleuron width={120} className="mt-3 rotate-180 opacity-75" />
           </div>
         ),
-    });
-  }
-
-  if (data.shiurimToday.length > 0) {
-    panels.push({
-      key: 'shiurim',
-      title: t('שיעורים היום', "Today's Shiurim"),
-      render: (tz) => (
-        <ul className="space-y-2">
-          {data.shiurimToday.map((s, i) => (
-            <li key={i} className="flex items-baseline justify-between gap-5 border-b border-walnut-900/10 pb-2 last:border-0">
-              <span className="min-w-0">
-                <span className={`block truncate text-2xl text-walnut-800 2xl:text-3xl ${he ? 'font-hebrew' : ''}`}>
-                  {he ? s.titleHe || s.title : s.title}
-                </span>
-                <span dir="auto" className="block truncate text-base text-walnut-500">
-                  {[s.maggidShiur, s.location].filter(Boolean).join(' · ')}
-                </span>
-              </span>
-              <span className="ltr-run shrink-0 font-display text-3xl font-bold tabular-nums text-walnut-900">
-                {s.at ? DateTime.fromMillis(s.at, { zone: tz }).toFormat('h:mm') : '—'}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ),
     });
   }
 
