@@ -7,6 +7,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { getSettings } from '@/lib/settings';
 import { getLiveAnnouncements } from '@/lib/schedule';
 import { PageHeader, Card, Badge, Empty } from '@/components/ui';
+import { flyerUrl } from '@/lib/uploads';
 
 export const metadata = { title: 'Announcements' };
 export const dynamic = 'force-dynamic';
@@ -52,6 +53,18 @@ export default async function AnnouncementsPage() {
                   <h2 className="mt-2 text-xl">{a.title}</h2>
                   {a.body && (
                     <div className="mt-2 whitespace-pre-line text-sm leading-relaxed text-walnut-600">{a.body}</div>
+                  )}
+                  {a.imageFile && (
+                    <a href={flyerUrl(a.imageFile)!} target="_blank" rel="noreferrer" className="mt-4 block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={flyerUrl(a.imageFile)!}
+                        alt={a.title}
+                        width={a.imageWidth ?? undefined}
+                        height={a.imageHeight ?? undefined}
+                        className="w-full max-w-lg rounded-lg border border-gold-200 shadow-crest transition-shadow hover:shadow-lift"
+                      />
+                    </a>
                   )}
                   <p className="mt-3 text-xs text-walnut-400">
                     {DateTime.fromSeconds(a.publishAt, { zone: tz }).toFormat('cccc, LLLL d, yyyy')}

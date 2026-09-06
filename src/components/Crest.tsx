@@ -81,19 +81,55 @@ export function Crest({
     );
   }
 
-  // Nothing loaded — stand in with the shul's name set as a wordmark.
+  // No artwork yet — set the name in a gold cartouche so the space reads as
+  // designed rather than as a missing image.
   return (
-    <span className={`flex flex-col items-center leading-none ${className}`}>
-      <span className={`he font-hebrew font-bold ${WORDMARK_HE[size]} ${dark ? 'text-gold-200' : 'text-walnut-800'}`}>
-        {nameHe}
-      </span>
-      <span
-        className={`mt-1.5 font-display uppercase tracking-[0.22em] ${WORDMARK_EN[size]} ${
-          dark ? 'text-gold-400/80' : 'text-gold-700'
-        }`}
-      >
-        {nameEn}
+    <span className={`inline-flex ${HEIGHTS[size]} items-center ${className}`}>
+      <span className="relative flex h-full flex-col items-center justify-center px-[1.6em] py-[0.5em]">
+        <Cartouche dark={dark} />
+        <span
+          className={`he relative font-hebrew font-bold leading-none ${WORDMARK_HE[size]} ${
+            dark ? 'text-gold-200' : 'text-walnut-800'
+          }`}
+        >
+          {nameHe}
+        </span>
+        <span
+          className={`relative mt-[0.45em] font-display uppercase leading-none tracking-[0.22em] ${WORDMARK_EN[size]} ${
+            dark ? 'text-gold-400/80' : 'text-gold-700'
+          }`}
+        >
+          {nameEn}
+        </span>
       </span>
     </span>
+  );
+}
+
+/** The double gold rule and corner flourishes behind the wordmark. */
+function Cartouche({ dark }: { dark: boolean }) {
+  const gold = dark ? '#C9A227' : '#AC881D';
+  const faint = dark ? '#8A6B18' : '#E3C766';
+
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 200 68"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+    >
+      <rect x="1.5" y="1.5" width="197" height="65" rx="6" fill="none" stroke={gold} strokeWidth="1.2" />
+      <rect x="5" y="5" width="190" height="58" rx="4" fill="none" stroke={faint} strokeWidth="0.6" />
+      {/* A small diamond centred on each side, the way the crest's frame is set. */}
+      {[
+        [100, 3.2], [100, 64.8], [3.2, 34], [196.8, 34],
+      ].map(([cx, cy]) => (
+        <path
+          key={`${cx}-${cy}`}
+          d={`M ${cx} ${cy - 2.6} L ${cx + 2.6} ${cy} L ${cx} ${cy + 2.6} L ${cx - 2.6} ${cy} Z`}
+          fill={gold}
+        />
+      ))}
+    </svg>
   );
 }

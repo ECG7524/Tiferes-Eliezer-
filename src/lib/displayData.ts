@@ -8,6 +8,7 @@ import { getDaySchedule, getUpNext, getLiveAnnouncements } from '@/lib/schedule'
 import { todayISO, addDaysISO, yahrzeitInYear, fmtDate } from '@/lib/zmanim';
 import { getLearning, type LearningItem } from '@/lib/learning';
 import { getTefillahDay, type TefillahDay } from '@/lib/tefillah';
+import { flyerUrl } from '@/lib/uploads';
 import { HDate } from '@hebcal/core';
 
 /** Everything the shul monitor needs, in one plain-JSON shape it can re-poll. */
@@ -34,11 +35,21 @@ export interface DisplayData {
     dafYomiHe: string | null;
     isShabbos: boolean;
   };
-  zmanim: { id: string; label: string; labelHe: string; at: number | null }[];
+  zmanim: {
+    id: string; label: string; labelHe: string; at: number | null;
+    /** Shaos zmanios are a length, not a clock time. */
+    minutes: number | null; isDuration: boolean;
+  }[];
   upNext: { name: string; nameHe: string | null; at: number; location: string | null; iso: string }[];
   minyanimToday: { name: string; nameHe: string | null; at: number | null; location: string | null }[];
   shiurimToday: { title: string; titleHe: string | null; maggidShiur: string | null; at: number | null; location: string | null }[];
-  announcements: { title: string; body: string; priority: string }[];
+  announcements: {
+    title: string; body: string; priority: string;
+    /** When set, the board shows the flyer instead of the text. */
+    imageUrl: string | null;
+    imageWidth: number | null;
+    imageHeight: number | null;
+  }[];
   sponsors: { kind: string; date: string; dateLabel: string; sponsorName: string; occasion: string }[];
   yahrzeitsToday: { name: string; nameHe: string; hebrewDate: string; forFamily: string }[];
   yahrzeitsSoon: { name: string; nameHe: string; when: string; forFamily: string }[];
@@ -52,10 +63,10 @@ export interface DisplayData {
   tefillah: TefillahDay | null;
 }
 
-/** Zmanim worth putting on a wall, in the order a person scans them. */
-const BOARD_ZMANIM = [
-  'alos', 'sunrise', 'sofZmanShmaGRA', 'sofZmanTfilaGRA',
-  'chatzos', 'minchaGedola', 'plag', 'candleLighting', 'sunset', 'tzais',
+/** The house default, used when the setting is empty or unreadable. */
+const DEFAULT_BOARD_ZMANIM = [
+  'alos', 'misheyakir', 'sunrise', 'sofZmanShmaMGA', 'sofZmanShmaGRA', 'sofZmanTfilaGRA',
+  'chatzos', 'minchaGedola', 'minchaKetana', 'plag', 'candleLighting', 'sunset', 'tzais',
 ];
 
 /**
@@ -98,6 +109,7 @@ export async function getDisplayData(previewISO?: string): Promise<DisplayData> 
   // Learning cycles and the day's tefillah changes are pure calendar work — no
   // database behind them, so they cost nothing to compute on each poll.
   const learning = getLearning(hd, parseCycles(settings.displayLearningCycles), settings.inIsrael);
+  const boardZmanim = parseJsonArray(settings.displayZmanim, DEFAULT_BOARD_ZMANIM);
   const tefillah = settings.displayShowTefillah
     ? getTefillahDay(hd, {
         inIsrael: settings.inIsrael,
@@ -163,9 +175,18 @@ export async function getDisplayData(previewISO?: string): Promise<DisplayData> 
       dafYomiHe: info.dafYomiHe,
       isShabbos: info.isShabbos,
     },
-    zmanim: schedule.day.zmanim
-      .filter((z) => BOARD_ZMANIM.includes(z.id) && z.at != null)
-      .map((z) => ({ id: z.id, label: z.label, labelHe: z.labelHe, at: z.at })),
+    // Ordered as the office listed them, not as the engine computes them.
+    zmanim: boardZmanim
+      .map((id) => schedule.day.zmanim.find((z) => z.id === id))
+      .filter((z): z is NonNullable<typeof z> => z != null && (z.at != null || z.isDuration === true))
+      .map((z) => ({
+        id: z.id,
+        label: z.label,
+        labelHe: z.labelHe,
+        at: z.at,
+        minutes: z.minutes ?? null,
+        isDuration: z.isDuration ?? false,
+      })),
     upNext: upNext
       .filter((m) => m.at != null)
       .map((m) => ({ name: m.name, nameHe: m.nameHe, at: m.at!, location: m.location, iso: m.iso })),
@@ -175,7 +196,14 @@ export async function getDisplayData(previewISO?: string): Promise<DisplayData> 
     shiurimToday: schedule.shiurim
       .filter((s) => s.showOnDisplay)
       .map((s) => ({ title: s.title, titleHe: s.titleHe, maggidShiur: s.maggidShiur, at: s.at, location: s.location })),
-    announcements: news.map((a) => ({ title: a.title, body: a.body ?? '', priority: a.priority })),
+    announcements: news.map((a) => ({
+      title: a.title,
+      body: a.body ?? '',
+      priority: a.priority,
+      imageUrl: flyerUrl(a.imageFile),
+      imageWidth: a.imageWidth,
+      imageHeight: a.imageHeight,
+    })),
     sponsors: sponsorRows.map((s) => ({
       kind: s.kind.replace(/_/g, ' '),
       date: s.date,
@@ -201,10 +229,14 @@ export async function getDisplayData(previewISO?: string): Promise<DisplayData> 
 
 /** The chosen learning cycles, falling back to the house set if the value is bad. */
 function parseCycles(json: string): LearningItem['key'][] {
-  const fallback: LearningItem['key'][] = ['chumash', 'daf', 'nach', 'dirshu'];
+  return parseJsonArray(json, ['chumash', 'daf', 'nach', 'dirshu']) as LearningItem['key'][];
+}
+
+/** A stored JSON array of strings, tolerant of a hand-edited value. */
+function parseJsonArray(json: string, fallback: string[]): string[] {
   try {
     const parsed = JSON.parse(json);
-    if (Array.isArray(parsed) && parsed.length) return parsed as LearningItem['key'][];
-  } catch { /* fall through */ }
+    if (Array.isArray(parsed) && parsed.length) return parsed.map(String);
+  } catch { /* fall through to the house default */ }
   return fallback;
 }

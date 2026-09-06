@@ -36,6 +36,14 @@ both.
 Every sponsorship, seat and aliyah with money attached books a pledge in the
 same ledger, so nothing is tracked in two places.
 
+**Flyers** — the office can attach an image to an announcement, which is how a
+printed appeal or a simcha notice actually wants to be seen. On the website it
+appears with the notice; on the shul board it takes the full width for its slot
+in the rotation, because a portrait poster squeezed into a column is unreadable
+across a room. Files live in `data/uploads/` and are served by the `/media`
+route — **not** from `public/`, which Next.js resolves from a build-time
+manifest and so cannot serve anything uploaded afterwards.
+
 **Members** — sign up, see announcements meant for members, review your own
 giving history and outstanding pledges, your seats, your aliyos, and keep your
 own yahrzeits (stored by Hebrew date, so leap years and short Cheshvans work out
@@ -54,6 +62,12 @@ old laptop and leave it.
 Add a date to preview another day — `/display?date=2026-12-12` shows the board as
 it will look on Shabbos Chanukah, without touching the monitor in shul. Set the
 board to English instead in *Admin → Settings* if you would rather.
+
+**זמני היום** on the board is chosen in *Admin → Settings* from the full list —
+including **סוף זמן ק״ש** and **סוף זמן תפילה** in both the **מג״א** and **גר״א**
+positions, משיכיר, מנחה קטנה, צאת ר״ת, חצות הלילה and the shaos zmanios. They
+appear in the order listed there. The `/zmanim` page always shows everything
+regardless.
 
 **לימוד יומי** carries **חומש** (the coming Shabbos's parsha, one aliyah a day,
 pausing on a week whose Shabbos is Yom Tov), **דף יומי**, **נ״ך יומי** and
@@ -111,6 +125,7 @@ Everything in `.env.local` is optional except `SESSION_SECRET`.
 |---|---|
 | `SESSION_SECRET` | Any long random string. `openssl rand -base64 32` |
 | `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` | Leave unset for a local SQLite file at `data/shul.db`. Set both to host on Turso, which is what serverless hosting needs |
+| — | Uploaded flyers are written to `data/uploads/`. On a host with an ephemeral filesystem, mount a volume at `data/` so both the database and the flyers survive a redeploy |
 | `STRIPE_SECRET_KEY` | Turns on card payments. Leave blank and the site still takes pledges while the office records cash and cheques |
 | `STRIPE_WEBHOOK_SECRET` | Required with Stripe — this is how a payment actually reaches the ledger |
 | `NEXT_PUBLIC_SITE_URL` | Your public URL, so Stripe knows where to send donors back |
@@ -207,9 +222,11 @@ src/
   app/
     (site)/       the public website and the admin console
     (board)/      the shul monitor, deliberately without site chrome
+    media/        serves uploaded flyers off disk
     api/          Stripe webhook, display board polling endpoint
   lib/
     zmanim.ts     zmanim, Hebrew calendar, the fixed/relative time resolver
+    uploads.ts    saving flyers, and reading their dimensions from the header
     learning.ts   the daily learning cycles and the chumash rota
     tefillah.ts   insertions, tachanun, hallel, kiddush levana, the molad
     schedule.ts   resolving minyanim and shiurim for a given day

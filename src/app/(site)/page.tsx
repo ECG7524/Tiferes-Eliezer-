@@ -139,6 +139,11 @@ export default async function HomePage() {
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-walnut-800">{a.title}</p>
                         {a.body && <p className="mt-0.5 line-clamp-2 text-xs text-walnut-500">{a.body}</p>}
+                        {a.imageFile && (
+                          <Link href="/announcements" className="mt-1 inline-block text-xs font-semibold text-gold-700 hover:underline">
+                            View the flyer →
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </li>

@@ -15,6 +15,27 @@
       "when": 1788701799210,
       "tag": "0001_hesitant_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788704518216,
+      "tag": "0002_amusing_kulan_gath",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1788704615989,
+      "tag": "0003_goofy_onslaught",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1788704767524,
+      "tag": "0004_yielding_jazinda",
+      "breakpoints": true
     }
   ]
 }

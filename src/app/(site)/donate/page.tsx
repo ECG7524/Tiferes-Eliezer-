@@ -135,10 +135,26 @@ export default async function DonatePage({
 
           <Card title="Other ways to give">
             <ul className="space-y-2.5 text-sm text-walnut-600">
-              <li>Cheques payable to <strong className="text-walnut-800">{settings.nameEn}</strong>, {settings.addressLine}, {settings.city}, {settings.state} {settings.zip}.</li>
-              <li>Zelle or bank transfer — {settings.email ? <a href={`mailto:${settings.email}`} className="text-gold-700 hover:underline">contact the office</a> : 'contact the office'} for details.</li>
+              <li>
+                Cheques payable to <strong className="text-walnut-800">{settings.nameEn}</strong>,{' '}
+                {settings.addressLine}, {settings.city}, {settings.state} {settings.zip}.
+              </li>
+              {settings.zelleTo && (
+                <li>Zelle — <strong className="text-walnut-800">{settings.zelleTo}</strong></li>
+              )}
+              {settings.quickPayTo && (
+                <li>QuickPay — <strong className="text-walnut-800">{settings.quickPayTo}</strong></li>
+              )}
+              {settings.phone && (
+                <li>Call or text <a href={`tel:${settings.phone}`} className="text-gold-700 hover:underline">{settings.phone}</a></li>
+              )}
               <li>Cash handed to a gabbai is entered into this same ledger.</li>
             </ul>
+            {settings.taxId && (
+              <p className="mt-4 border-t border-gold-100 pt-3 text-xs text-walnut-400">
+                All donations are tax deductible. Registered 501(c)(3), EIN {settings.taxId}.
+              </p>
+            )}
           </Card>
         </aside>
       </div>

@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `display_zmanim` text DEFAULT '["alos","misheyakir","sunrise","sofZmanShmaMGA","sofZmanShmaGRA","sofZmanTfilaGRA","chatzos","minchaGedola","minchaKetana","plag","candleLighting","sunset","tzais"]' NOT NULL;

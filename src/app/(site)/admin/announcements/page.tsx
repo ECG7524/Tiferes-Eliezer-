@@ -5,6 +5,7 @@ import { announcements, events } from '@/db/schema';
 import { getSettings } from '@/lib/settings';
 import { saveAnnouncementAction, deleteAnnouncementAction, saveEventAction, deleteEventAction } from '@/actions/content';
 import { PageHeader, Card, Badge, Empty, Flash } from '@/components/ui';
+import { flyerUrl } from '@/lib/uploads';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,6 +64,13 @@ export default async function AdminAnnouncementsPage({
                             {!live && <Badge value="disabled" label={a.publishAt > now ? 'scheduled' : 'expired'} />}
                           </div>
                           {a.body && <p className="mt-1 line-clamp-2 text-xs text-walnut-500">{a.body}</p>}
+                          {a.imageFile && (
+                            <span className="mt-1.5 inline-flex items-center gap-2 text-[11px] text-gold-700">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={flyerUrl(a.imageFile)!} alt="" className="h-10 w-auto rounded border border-gold-300" />
+                              flyer attached
+                            </span>
+                          )}
                           <p className="mt-1 text-[11px] text-walnut-400">
                             {DateTime.fromSeconds(a.publishAt, { zone: tz }).toFormat('LLL d, yyyy h:mm a')}
                             {a.expiresAt && ` → ${DateTime.fromSeconds(a.expiresAt, { zone: tz }).toFormat('LLL d, yyyy')}`}
@@ -124,6 +132,38 @@ export default async function AdminAnnouncementsPage({
               <div>
                 <label className="label" htmlFor="a-body">Body</label>
                 <textarea id="a-body" name="body" rows={4} defaultValue={editing?.body ?? ''} className="textarea" />
+              </div>
+
+              {/* ---- Flyer ---- */}
+              <div className="rounded-lg border border-gold-200 bg-gold-50/40 p-3">
+                <label className="label" htmlFor="a-image">
+                  Flyer <span className="normal-case text-walnut-400">(optional)</span>
+                </label>
+                {editing?.imageFile && (
+                  <div className="mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={flyerUrl(editing.imageFile)!}
+                      alt=""
+                      className="max-h-48 w-auto rounded border border-gold-300"
+                    />
+                    <label className="mt-2 flex items-center gap-2 text-xs text-walnut-600">
+                      <input type="checkbox" name="removeImage" className="accent-gold-600" />
+                      Remove this flyer
+                    </label>
+                  </div>
+                )}
+                <input
+                  id="a-image"
+                  name="image"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="w-full text-xs text-walnut-600 file:mr-3 file:rounded file:border-0 file:bg-walnut-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-ivory-50"
+                />
+                <p className="mt-1.5 text-xs text-walnut-400">
+                  JPG, PNG or WEBP, up to 8MB. On the shul board the flyer fills the panel, so the
+                  title and body are used only on the website.
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

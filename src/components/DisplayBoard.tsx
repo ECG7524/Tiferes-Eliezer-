@@ -127,7 +127,27 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
         </div>
       )}
 
-      {/* ---------------- Three columns ---------------- */}
+      {/* ---------------- Body ---------------- */}
+      {/* A flyer is a finished design and unreadable at column width, so for
+          its slot it takes the whole body. The header and tefillah band stay,
+          and the columns come back on the next rotation. */}
+      {panel?.fill ? (
+        <div className="animate-fade-up flex min-h-0 flex-1 flex-col px-6 py-4">
+          <div className="flex min-h-0 flex-1 items-center justify-center">{panel.render(tz)}</div>
+          {panels.length > 1 && (
+            <div className="mt-3 flex justify-center gap-1.5">
+              {panels.map((p, i) => (
+                <span
+                  key={p.key}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === panelIndex % panels.length ? 'w-7 bg-gold-400' : 'w-1.5 bg-gold-700/60'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="flex min-h-0 flex-1">
         {/* זמני היום */}
         <Column title={t('זמני היום', 'Zmanim')} className="w-[26%] border-e border-gold-700/40">
@@ -137,7 +157,11 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
                 key={z.id}
                 label={he ? z.labelHe : z.label}
                 hebrewFont={he}
-                value={z.at ? DateTime.fromMillis(z.at, { zone: tz }).toFormat('h:mm') : '—'}
+                value={
+                  z.isDuration
+                    ? z.minutes != null ? `${z.minutes}${t(' דק׳', ' min')}` : '—'
+                    : z.at ? DateTime.fromMillis(z.at, { zone: tz }).toFormat('h:mm') : '—'
+                }
               />
             ))}
           </dl>
@@ -180,9 +204,11 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
           <div className="flex min-h-0 flex-1 flex-col px-6 py-3">
             {panel ? (
               <section key={`${panel.key}-${panelIndex}`} className="animate-fade-up flex min-h-0 flex-1 flex-col">
-                <h2 className="mb-2 text-center text-xl font-semibold uppercase tracking-[0.15em] text-gold-500">
-                  {panel.title}
-                </h2>
+                {!panel.fill && (
+                  <h2 className="mb-2 text-center text-xl font-semibold uppercase tracking-[0.15em] text-gold-500">
+                    {panel.title}
+                  </h2>
+                )}
                 <div className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden">{panel.render(tz)}</div>
               </section>
             ) : (
@@ -224,6 +250,7 @@ export function DisplayBoard({ initial }: { initial: DisplayData }) {
           )}
         </Column>
       </div>
+      )}
 
       {/* ---------------- Tefillah band ---------------- */}
       {data.tefillah && (
@@ -359,6 +386,8 @@ function countdown(at: number, now: number, tz: string, t: (he: string, en: stri
 interface Panel {
   key: string;
   title: string;
+  /** Drops the panel heading so a flyer gets the full height. */
+  fill?: boolean;
   render: (tz: string) => React.ReactNode;
 }
 
@@ -370,18 +399,33 @@ function buildPanels(data: DisplayData, t: (he: string, en: string) => string): 
     panels.push({
       key: `ann-${i}`,
       title: a.priority === 'urgent' ? t('חשוב', 'Important') : t('הודעה', 'Announcement'),
-      render: () => (
-        <div dir="auto" className="text-center">
-          <h3 className={`text-4xl font-semibold leading-tight 2xl:text-5xl ${a.priority === 'urgent' ? 'text-rose-300' : 'text-ivory-50'}`}>
-            {a.title}
-          </h3>
-          {a.body && (
-            <p dir="auto" className="mt-3 whitespace-pre-line text-2xl leading-snug text-ivory-100/70 2xl:text-3xl">
-              {a.body}
-            </p>
-          )}
-        </div>
-      ),
+      // A flyer is already a finished design — it fills the panel and the
+      // title and body stay on the website.
+      fill: Boolean(a.imageUrl),
+      render: () =>
+        a.imageUrl ? (
+          <div className="flex h-full w-full items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={a.imageUrl}
+              alt={a.title}
+              width={a.imageWidth ?? undefined}
+              height={a.imageHeight ?? undefined}
+              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+            />
+          </div>
+        ) : (
+          <div dir="auto" className="text-center">
+            <h3 className={`text-4xl font-semibold leading-tight 2xl:text-5xl ${a.priority === 'urgent' ? 'text-rose-300' : 'text-ivory-50'}`}>
+              {a.title}
+            </h3>
+            {a.body && (
+              <p dir="auto" className="mt-3 whitespace-pre-line text-2xl leading-snug text-ivory-100/70 2xl:text-3xl">
+                {a.body}
+              </p>
+            )}
+          </div>
+        ),
     });
   }
 

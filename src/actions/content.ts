@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { announcements, minyanim, shiurim, events, yahrzeits } from '@/db/schema';
 import { requireRole, requireUser, getCurrentUser } from '@/lib/auth';
+import { saveFlyer, deleteFlyer } from '@/lib/uploads';
 
 function fail(path: string, msg: string): never {
   redirect(`${path}?error=${encodeURIComponent(msg)}`);
@@ -27,9 +28,36 @@ export async function saveAnnouncementAction(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
   if (!title) fail('/admin/announcements', 'Give the announcement a title.');
 
+  const existing = id
+    ? (await db.select().from(announcements).where(eq(announcements.id, id)).limit(1))[0]
+    : undefined;
+
+  // A flyer replaces whatever was there; ticking "remove" clears it.
+  const upload = formData.get('image');
+  const removeImage = formData.get('removeImage') === 'on';
+  let image = {
+    imageFile: existing?.imageFile ?? '',
+    imageWidth: existing?.imageWidth ?? null,
+    imageHeight: existing?.imageHeight ?? null,
+  };
+
+  if (upload instanceof File && upload.size > 0) {
+    try {
+      const saved = await saveFlyer(upload);
+      if (existing?.imageFile) await deleteFlyer(existing.imageFile);
+      image = { imageFile: saved.file, imageWidth: saved.width, imageHeight: saved.height };
+    } catch (err) {
+      fail('/admin/announcements', err instanceof Error ? err.message : 'That image could not be saved.');
+    }
+  } else if (removeImage && existing?.imageFile) {
+    await deleteFlyer(existing.imageFile);
+    image = { imageFile: '', imageWidth: null, imageHeight: null };
+  }
+
   const values = {
     title,
     body: String(formData.get('body') ?? '').trim(),
+    ...image,
     priority: String(formData.get('priority') ?? 'normal') as 'normal',
     audience: String(formData.get('audience') ?? 'public') as 'public',
     publishAt: toUnix(String(formData.get('publishAt') ?? '')) ?? Math.floor(Date.now() / 1000),
@@ -54,7 +82,12 @@ export async function saveAnnouncementAction(formData: FormData) {
 export async function deleteAnnouncementAction(formData: FormData) {
   await requireRole('gabbai');
   const id = Number(formData.get('id'));
-  if (id) await db.delete(announcements).where(eq(announcements.id, id));
+  if (id) {
+    // Take the flyer off disk too, rather than orphaning it.
+    const [row] = await db.select().from(announcements).where(eq(announcements.id, id)).limit(1);
+    if (row?.imageFile) await deleteFlyer(row.imageFile);
+    await db.delete(announcements).where(eq(announcements.id, id));
+  }
   revalidatePath('/admin/announcements');
   revalidatePath('/announcements');
   redirect('/admin/announcements?ok=' + encodeURIComponent('Announcement removed.'));

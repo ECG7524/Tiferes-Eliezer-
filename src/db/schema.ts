@@ -42,6 +42,10 @@ export const settings = sqliteTable('settings', {
 
   // Money
   currency: text('currency').notNull().default('usd'),
+  /** Shown on the donation page and on receipts. */
+  taxId: text('tax_id').default(''),
+  zelleTo: text('zelle_to').default(''),
+  quickPayTo: text('quick_pay_to').default(''),
   defaultKiddushCents: integer('default_kiddush_cents').notNull().default(36000),
   defaultShaloshSeudosCents: integer('default_shalosh_seudos_cents').notNull().default(18000),
   defaultSeatCents: integer('default_seat_cents').notNull().default(50000),
@@ -63,6 +67,10 @@ export const settings = sqliteTable('settings', {
     .notNull()
     .default('["chumash","daf","nach","dirshu"]'),
   displayShowTefillah: integer('display_show_tefillah', { mode: 'boolean' }).notNull().default(true),
+  // JSON array of zman ids, in the order they appear on the board.
+  displayZmanim: text('display_zmanim')
+    .notNull()
+    .default('["alos","misheyakir","sunrise","sofZmanShmaMGA","sofZmanShmaGRA","sofZmanTfilaGRA","chatzos","minchaGedola","minchaKetana","plag","candleLighting","sunset","tzais"]'),
 
   // Nusach Sefard and Eretz Yisrael say מוריד הטל through the summer;
   // Ashkenaz says nothing there.
@@ -355,6 +363,13 @@ export const announcements = sqliteTable(
     id: integer('id').primaryKey({ autoIncrement: true }),
     title: text('title').notNull(),
     body: text('body').notNull().default(''),
+    /**
+     * A flyer. When set, the board shows the artwork full height instead of the
+     * title and body, which is how a printed appeal wants to be seen.
+     */
+    imageFile: text('image_file').default(''),
+    imageWidth: integer('image_width'),
+    imageHeight: integer('image_height'),
     priority: text('priority', { enum: ['normal', 'high', 'urgent'] }).notNull().default('normal'),
     // Members only, or on the shul monitor and the public homepage too.
     audience: text('audience', { enum: ['public', 'members'] }).notNull().default('public'),

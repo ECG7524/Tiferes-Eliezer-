@@ -161,6 +161,9 @@ export async function saveSettingsAction(formData: FormData) {
     tzaisOpinion: str('tzaisOpinion') as 'geonim_8_5',
     alosOpinion: str('alosOpinion') as 'degrees_16_1',
     inIsrael: formData.get('inIsrael') === 'on',
+    taxId: str('taxId'),
+    zelleTo: str('zelleTo'),
+    quickPayTo: str('quickPayTo'),
     defaultKiddushCents: money('defaultKiddushCents', 36000),
     defaultShaloshSeudosCents: money('defaultShaloshSeudosCents', 18000),
     defaultSeatCents: money('defaultSeatCents', 50000),
@@ -176,6 +179,8 @@ export async function saveSettingsAction(formData: FormData) {
     displayLearningCycles: JSON.stringify(
       formData.getAll('displayLearningCycles').map(String).filter(Boolean),
     ),
+    // Order matters: the board lists them exactly as the form does.
+    displayZmanim: JSON.stringify(formData.getAll('displayZmanim').map(String).filter(Boolean)),
     saysMoridHatal: formData.get('saysMoridHatal') === 'on',
     kiddushLevanaFromDays: num('kiddushLevanaFromDays', 7) === 3 ? 3 : 7,
     requireApproval: formData.get('requireApproval') === 'on',

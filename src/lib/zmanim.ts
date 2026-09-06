@@ -434,6 +434,31 @@ export function dayTypesFor(info: DayInfo): Set<string> {
   return out;
 }
 
+/**
+ * Every zman the board can carry, in luach order. The office picks a subset in
+ * Admin → Settings; the board renders them in the order chosen here.
+ */
+export const BOARD_ZMAN_OPTIONS: { id: ZmanId; labelHe: string; labelEn: string }[] = [
+  { id: 'alos', labelHe: 'עלות השחר', labelEn: 'Alos Hashachar' },
+  { id: 'misheyakir', labelHe: 'משיכיר', labelEn: 'Earliest Tallis & Tefillin' },
+  { id: 'sunrise', labelHe: 'נץ החמה', labelEn: 'Neitz Hachama' },
+  { id: 'sofZmanShmaMGA', labelHe: 'סוף זמן ק"ש מג"א', labelEn: 'Sof Zman Krias Shma (MG"A)' },
+  { id: 'sofZmanShmaGRA', labelHe: 'סוף זמן ק"ש גר"א', labelEn: 'Sof Zman Krias Shma (Gr"a)' },
+  { id: 'sofZmanTfilaMGA', labelHe: 'סוף זמן תפילה מג"א', labelEn: 'Sof Zman Tefilla (MG"A)' },
+  { id: 'sofZmanTfilaGRA', labelHe: 'סוף זמן תפילה גר"א', labelEn: 'Sof Zman Tefilla (Gr"a)' },
+  { id: 'chatzos', labelHe: 'חצות היום', labelEn: 'Chatzos' },
+  { id: 'minchaGedola', labelHe: 'מנחה גדולה', labelEn: 'Mincha Gedola' },
+  { id: 'minchaKetana', labelHe: 'מנחה קטנה', labelEn: 'Mincha Ketana' },
+  { id: 'plag', labelHe: 'פלג המנחה', labelEn: 'Plag Hamincha' },
+  { id: 'candleLighting', labelHe: 'הדלקת נרות', labelEn: 'Candle Lighting' },
+  { id: 'sunset', labelHe: 'שקיעת החמה', labelEn: 'Shkias Hachama' },
+  { id: 'tzais', labelHe: 'צאת הכוכבים', labelEn: 'Tzais Hakochavim' },
+  { id: 'tzais72', labelHe: 'צאת ר"ת', labelEn: 'Tzais (Rabbeinu Tam)' },
+  { id: 'chatzosHalayla', labelHe: 'חצות הלילה', labelEn: 'Chatzos Halayla' },
+  { id: 'shaahZmanisGRA', labelHe: 'שעה זמנית גר"א', labelEn: 'Shaah Zmanis (Gr"a)' },
+  { id: 'shaahZmanisMGA', labelHe: 'שעה זמנית מג"א', labelEn: 'Shaah Zmanis (MG"A)' },
+];
+
 export const DAY_TYPE_LABELS: Record<string, string> = {
   weekday: 'Weekdays (Mon–Fri)',
   sunday_thursday: 'Sunday–Thursday',

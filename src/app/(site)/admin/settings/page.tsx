@@ -1,5 +1,8 @@
 import { getSettings } from '@/lib/settings';
-import { computeZmanim, todayISO, fmtTime, ALOS_OPINION_LABELS, TZAIS_OPINION_LABELS } from '@/lib/zmanim';
+import {
+  computeZmanim, todayISO, fmtTime,
+  ALOS_OPINION_LABELS, TZAIS_OPINION_LABELS, BOARD_ZMAN_OPTIONS,
+} from '@/lib/zmanim';
 import { isStripeEnabled } from '@/lib/stripe';
 import { LEARNING_CYCLES } from '@/lib/learning';
 import { ARTWORK, artworkPresence } from '@/lib/artwork';
@@ -16,6 +19,7 @@ export default async function AdminSettingsPage({
   const [sp, s] = await Promise.all([searchParams, getSettings()]);
   const enabledCycles = parseCycles(s.displayLearningCycles);
   const artwork = artworkPresence();
+  const chosenZmanim = parseCycles(s.displayZmanim);
   const tz = s.timezone;
   const today = todayISO(tz);
   const preview = computeZmanim(today, s);
@@ -172,6 +176,27 @@ export default async function AdminSettingsPage({
           </div>
         </Card>
 
+        <Card title="Giving details">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <label className="label" htmlFor="taxId">501(c)(3) EIN</label>
+              <input id="taxId" name="taxId" defaultValue={s.taxId ?? ''} className="input" placeholder="85-3969999" />
+            </div>
+            <div>
+              <label className="label" htmlFor="zelleTo">Zelle to</label>
+              <input id="zelleTo" name="zelleTo" defaultValue={s.zelleTo ?? ''} className="input" />
+            </div>
+            <div>
+              <label className="label" htmlFor="quickPayTo">QuickPay to</label>
+              <input id="quickPayTo" name="quickPayTo" defaultValue={s.quickPayTo ?? ''} className="input" />
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-walnut-400">
+            These appear on the donation page so donors can give the way they prefer, and so the
+            deduction is stated where they can see it.
+          </p>
+        </Card>
+
         <Card title="House rates">
           <div className="grid gap-4 sm:grid-cols-4">
             <div>
@@ -241,6 +266,29 @@ export default async function AdminSettingsPage({
                 <input type="checkbox" name="displayShowTefillah" defaultChecked={s.displayShowTefillah} className="accent-gold-600" /> Show the tefillah band
               </label>
             </div>
+          </div>
+
+          <div className="mt-5 border-t border-gold-200 pt-5">
+            <p className="eyebrow mb-2">זמני היום — which zmanim the board carries</p>
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              {BOARD_ZMAN_OPTIONS.map((z) => (
+                <label key={z.id} className="flex items-center gap-2 text-sm text-walnut-600">
+                  <input
+                    type="checkbox"
+                    name="displayZmanim"
+                    value={z.id}
+                    defaultChecked={chosenZmanim.includes(z.id)}
+                    className="accent-gold-600"
+                  />
+                  <span className="he font-hebrew text-base text-walnut-800">{z.labelHe}</span>
+                  <span className="text-xs text-walnut-400">{z.labelEn}</span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-walnut-400">
+              They appear on the board in the order listed here. The full zmanim page always shows
+              everything regardless of this choice.
+            </p>
           </div>
 
           <div className="mt-5 border-t border-gold-200 pt-5">
