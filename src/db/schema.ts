@@ -53,6 +53,22 @@ export const settings = sqliteTable('settings', {
   displayShowSponsors: integer('display_show_sponsors', { mode: 'boolean' }).notNull().default(true),
   displayShowDaf: integer('display_show_daf', { mode: 'boolean' }).notNull().default(true),
   displayMessage: text('display_message').default(''),
+  // The board reads as a Hebrew luach by default, the way a beis medrash
+  // board normally does.
+  displayLanguage: text('display_language', { enum: ['hebrew', 'english'] })
+    .notNull()
+    .default('hebrew'),
+  // JSON array of learning cycle keys, e.g. ["chumash","daf","nach","dirshu"]
+  displayLearningCycles: text('display_learning_cycles')
+    .notNull()
+    .default('["chumash","daf","nach","dirshu"]'),
+  displayShowTefillah: integer('display_show_tefillah', { mode: 'boolean' }).notNull().default(true),
+
+  // Nusach Sefard and Eretz Yisrael say מוריד הטל through the summer;
+  // Ashkenaz says nothing there.
+  saysMoridHatal: integer('says_morid_hatal', { mode: 'boolean' }).notNull().default(true),
+  // Rema is 7 days after the molad; much of Chassidus says 3.
+  kiddushLevanaFromDays: integer('kiddush_levana_from_days').notNull().default(7),
 
   // Whether new signups need an admin to approve them before they can log in.
   requireApproval: integer('require_approval', { mode: 'boolean' }).notNull().default(true),

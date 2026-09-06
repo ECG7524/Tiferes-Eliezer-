@@ -1,6 +1,7 @@
 import { getSettings } from '@/lib/settings';
 import { computeZmanim, todayISO, fmtTime, ALOS_OPINION_LABELS, TZAIS_OPINION_LABELS } from '@/lib/zmanim';
 import { isStripeEnabled } from '@/lib/stripe';
+import { LEARNING_CYCLES } from '@/lib/learning';
 import { saveSettingsAction } from '@/actions/admin';
 import { PageHeader, Card, Flash } from '@/components/ui';
 
@@ -12,6 +13,7 @@ export default async function AdminSettingsPage({
   searchParams: Promise<{ ok?: string; error?: string }>;
 }) {
   const [sp, s] = await Promise.all([searchParams, getSettings()]);
+  const enabledCycles = parseCycles(s.displayLearningCycles);
   const tz = s.timezone;
   const today = todayISO(tz);
   const preview = computeZmanim(today, s);
@@ -177,9 +179,24 @@ export default async function AdminSettingsPage({
               <label className="label" htmlFor="displayRotateSeconds">Seconds per panel</label>
               <input id="displayRotateSeconds" name="displayRotateSeconds" type="number" min={5} max={120} defaultValue={s.displayRotateSeconds} className="input tabular-nums" />
             </div>
+            <div className="sm:col-span-2 rounded-lg bg-gold-50 px-3 py-2.5 text-xs text-walnut-500">
+              Open the board at <code className="font-mono">/display</code>. To check how a Shabbos or
+              Yom Tov will look before it arrives, add a date —{' '}
+              <a href="/display?date=2026-12-12" target="_blank" className="font-semibold text-gold-700 hover:underline">
+                /display?date=2026-12-12
+              </a>{' '}
+              — which previews that day without affecting the monitor in shul.
+            </div>
             <div>
               <label className="label" htmlFor="displayMessage">Standing message on the board</label>
               <input id="displayMessage" name="displayMessage" defaultValue={s.displayMessage ?? ''} className="input" placeholder="Please switch off phones in the beis medrash" />
+            </div>
+            <div>
+              <label className="label" htmlFor="displayLanguage">Board language</label>
+              <select id="displayLanguage" name="displayLanguage" defaultValue={s.displayLanguage} className="select">
+                <option value="hebrew">עברית — Hebrew, right to left</option>
+                <option value="english">English, left to right</option>
+              </select>
             </div>
             <div className="sm:col-span-2 flex flex-wrap gap-5">
               <label className="flex items-center gap-2 text-sm text-walnut-600">
@@ -189,8 +206,53 @@ export default async function AdminSettingsPage({
                 <input type="checkbox" name="displayShowSponsors" defaultChecked={s.displayShowSponsors} className="accent-gold-600" /> Show sponsors
               </label>
               <label className="flex items-center gap-2 text-sm text-walnut-600">
-                <input type="checkbox" name="displayShowDaf" defaultChecked={s.displayShowDaf} className="accent-gold-600" /> Show Daf Yomi
+                <input type="checkbox" name="displayShowDaf" defaultChecked={s.displayShowDaf} className="accent-gold-600" /> Show Daf Yomi in the header
               </label>
+              <label className="flex items-center gap-2 text-sm text-walnut-600">
+                <input type="checkbox" name="displayShowTefillah" defaultChecked={s.displayShowTefillah} className="accent-gold-600" /> Show the tefillah band
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-5 border-t border-gold-200 pt-5">
+            <p className="eyebrow mb-2">לימוד יומי — which cycles the board carries</p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {LEARNING_CYCLES.map((c) => (
+                <label key={c.key} className="flex items-center gap-2 text-sm text-walnut-600">
+                  <input
+                    type="checkbox"
+                    name="displayLearningCycles"
+                    value={c.key}
+                    defaultChecked={enabledCycles.includes(c.key)}
+                    className="accent-gold-600"
+                  />
+                  <span className="he font-hebrew text-base text-walnut-800">{c.labelHe}</span>
+                  <span className="text-xs text-walnut-400">{c.labelEn}</span>
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-walnut-400">
+              Chumash follows the coming Shabbos&apos;s parsha, one aliyah a day, and pauses on a week
+              whose Shabbos is Yom Tov.
+            </p>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-end gap-6 border-t border-gold-200 pt-5">
+            <label className="flex items-start gap-2 text-sm text-walnut-600">
+              <input type="checkbox" name="saysMoridHatal" defaultChecked={s.saysMoridHatal} className="mt-0.5 accent-gold-600" />
+              <span>
+                <span className="he font-hebrew text-base text-walnut-800">מוריד הטל</span>
+                <span className="block text-xs text-walnut-400">
+                  Say it through the summer. Nusach Sefard and Eretz Yisrael do; Ashkenaz says nothing there.
+                </span>
+              </span>
+            </label>
+            <div>
+              <label className="label" htmlFor="kiddushLevanaFromDays">קידוש לבנה — earliest</label>
+              <select id="kiddushLevanaFromDays" name="kiddushLevanaFromDays" defaultValue={s.kiddushLevanaFromDays} className="select">
+                <option value={7}>7 days after the molad (Rema)</option>
+                <option value={3}>3 days after the molad</option>
+              </select>
             </div>
           </div>
         </Card>
@@ -213,4 +275,13 @@ export default async function AdminSettingsPage({
       </form>
     </>
   );
+}
+
+/** The saved learning cycles, tolerant of a hand-edited value. */
+function parseCycles(json: string): string[] {
+  try {
+    const parsed = JSON.parse(json);
+    if (Array.isArray(parsed)) return parsed.map(String);
+  } catch { /* fall through to none selected */ }
+  return [];
 }

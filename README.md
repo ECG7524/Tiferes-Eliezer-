@@ -41,11 +41,40 @@ giving history and outstanding pledges, your seats, your aliyos, and keep your
 own yahrzeits (stored by Hebrew date, so leap years and short Cheshvans work out
 correctly every year).
 
-**The display board** at `/display` — a full-screen board for a monitor in shul.
-Live clock, the next minyan with a countdown, the day's zmanim, and rotating
-panels for davening, shiurim, announcements, sponsors and yahrzeits. It refreshes
-its own data every minute and rolls over at midnight without a reload. No login
-needed — open it on a smart TV, a Raspberry Pi or an old laptop and leave it.
+**The display board** at `/display` — a full-screen Hebrew luach for the monitor
+in shul, reading right to left the way a beis medrash board does. The parsha
+leads, with a live clock, the Hebrew date, and on Shabbos the time it goes out.
+Three columns carry **זמני היום**, **זמני התפילה** (the next minyan highlighted,
+with a countdown) and **לימוד יומי**; a band along the bottom carries the day's
+tefillah changes; announcements, shiurim, sponsors and yahrzeits rotate through
+the middle. It refreshes its own data every minute and rolls over at midnight
+without a reload. No login needed — open it on a smart TV, a Raspberry Pi or an
+old laptop and leave it.
+
+Add a date to preview another day — `/display?date=2026-12-12` shows the board as
+it will look on Shabbos Chanukah, without touching the monitor in shul. Set the
+board to English instead in *Admin → Settings* if you would rather.
+
+**לימוד יומי** carries **חומש** (the coming Shabbos's parsha, one aliyah a day,
+pausing on a week whose Shabbos is Yom Tov), **דף יומי**, **נ״ך יומי** and
+**דף היומי בהלכה**. Pick which of them appear in *Admin → Settings*.
+
+**The tefillah band** works out what changes in davening today, from the Hebrew
+date alone:
+
+| | |
+|---|---|
+| Rain and dew | משיב הרוח ומוריד הגשם from Musaf Shemini Atzeres to Musaf first day Pesach, otherwise מוריד הטל |
+| Birkas hashanim | ותן טל ומטר from Maariv of 4 December — 5 December before a civil leap year — until Pesach; 7 Cheshvan in Eretz Yisrael |
+| Additions | יעלה ויבוא, על הנסים (with the night of Chanukah), עננו on a public fast |
+| תחנון | Whether it is said, why not when it isn't, and when it is dropped only at Mincha |
+| הלל | Full or half |
+| קידוש לבנה | The window from the molad — 7 days after (Rema) or 3, until 14 days 18 hours 22 minutes |
+| מברכין החודש | The molad, announced on Shabbos Mevorchim |
+
+Where minhagim differ — מוריד הטל through the summer, three days or seven for
+kiddush levana — the shul's practice is a setting rather than a decision baked
+into the code.
 
 ---
 
@@ -140,7 +169,10 @@ The first person to sign up on a fresh install becomes the administrator.
 Next.js (App Router) with server actions, Drizzle over SQLite through libSQL, and
 Tailwind. Zmanim come from [`kosher-zmanim`](https://github.com/BehindTheMath/KosherZmanim),
 the JavaScript port of KosherJava; the Hebrew calendar from
-[`@hebcal/core`](https://github.com/hebcal/hebcal-es6).
+[`@hebcal/core`](https://github.com/hebcal/hebcal-es6), with `@hebcal/learning`
+for the daily cycles and `@hebcal/leyning` for the aliyah verse ranges. The
+tefillah rules are worked out in `src/lib/tefillah.ts` from the Hebrew date
+rather than looked up in a table.
 
 A few decisions worth knowing about:
 
@@ -153,6 +185,9 @@ A few decisions worth knowing about:
   payments recorded against it, so the ledger can't drift.
 - **Yahrzeits are stored by Hebrew date**, and the civil date is computed per
   year rather than stored.
+- **Nothing on the board is stored calendar data.** Learning cycles and tefillah
+  changes are derived from the date on every poll, so there is no table to keep
+  topped up and nothing to go stale.
 
 ### Layout
 
@@ -164,6 +199,8 @@ src/
     api/          Stripe webhook, display board polling endpoint
   lib/
     zmanim.ts     zmanim, Hebrew calendar, the fixed/relative time resolver
+    learning.ts   the daily learning cycles and the chumash rota
+    tefillah.ts   insertions, tachanun, hallel, kiddush levana, the molad
     schedule.ts   resolving minyanim and shiurim for a given day
     ledger.ts     pledge/payment totals and reconciliation
     displayData.ts  everything the board needs, in one JSON shape
@@ -188,4 +225,7 @@ npm run db:migrate
 
 The calculations follow the standard astronomical method and the shul's own
 coordinates, and where opinions differ the chosen view is named beneath each
-time. **For anything with practical halachic consequence, ask the Rav.**
+time. The same goes for the tefillah band: it encodes the ordinary rules, and
+the shul's own minhag where a setting covers it.
+
+**For anything with practical halachic consequence, ask the Rav.**

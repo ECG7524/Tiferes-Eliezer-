@@ -90,6 +90,17 @@
   .table-shul tbody tr:hover { @apply bg-gold-50/60; }
 }
 
+/* Latin text and clock times sitting inside the RTL board must not inherit its
+   direction, or trailing punctuation and the am/pm marker jump to the wrong
+   end. Isolating them lets each run lay itself out correctly. */
+.bidi-isolate {
+  unicode-bidi: isolate;
+}
+.ltr-run {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 /* The monitor in the shul is a dark board, deliberately unlike the website. */
 .display-root {
   background:

@@ -170,6 +170,14 @@ export async function saveSettingsAction(formData: FormData) {
     displayShowSponsors: formData.get('displayShowSponsors') === 'on',
     displayShowDaf: formData.get('displayShowDaf') === 'on',
     displayMessage: str('displayMessage'),
+    displayLanguage: str('displayLanguage') === 'english' ? 'english' : 'hebrew',
+    displayShowTefillah: formData.get('displayShowTefillah') === 'on',
+    // Keep the order the form lists them in, so the board reads as configured.
+    displayLearningCycles: JSON.stringify(
+      formData.getAll('displayLearningCycles').map(String).filter(Boolean),
+    ),
+    saysMoridHatal: formData.get('saysMoridHatal') === 'on',
+    kiddushLevanaFromDays: num('kiddushLevanaFromDays', 7) === 3 ? 3 : 7,
     requireApproval: formData.get('requireApproval') === 'on',
   });
 

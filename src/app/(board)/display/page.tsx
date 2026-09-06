@@ -9,7 +9,12 @@ export const revalidate = 0;
  * a smart TV, a Raspberry Pi, an old laptop — and leave it. It refreshes its
  * own data every minute and rolls over at midnight without a reload.
  */
-export default async function DisplayPage() {
-  const data = await getDisplayData();
+export default async function DisplayPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
+  const { date } = await searchParams;
+  const data = await getDisplayData(date);
   return <DisplayBoard initial={data} />;
 }

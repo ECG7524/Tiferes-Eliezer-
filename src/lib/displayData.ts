@@ -6,12 +6,16 @@ import { sponsorships, yahrzeits, users, events } from '@/db/schema';
 import { getSettings } from '@/lib/settings';
 import { getDaySchedule, getUpNext, getLiveAnnouncements } from '@/lib/schedule';
 import { todayISO, addDaysISO, yahrzeitInYear, fmtDate } from '@/lib/zmanim';
+import { getLearning, type LearningItem } from '@/lib/learning';
+import { getTefillahDay, type TefillahDay } from '@/lib/tefillah';
 import { HDate } from '@hebcal/core';
 
 /** Everything the shul monitor needs, in one plain-JSON shape it can re-poll. */
 export interface DisplayData {
   generatedAt: number;
   timezone: string;
+  /** Set when the board is showing a date other than today. */
+  previewOf?: string;
   shul: { nameHe: string; nameEn: string; dedicationHe: string; nasiHe: string };
   rotateSeconds: number;
   standingMessage: string;
@@ -22,7 +26,9 @@ export interface DisplayData {
     hebrewEn: string;
     parshaHe: string | null;
     parshaEn: string | null;
-    holidays: string[];
+    holidays: { en: string; he: string }[];
+    /** Motzei Shabbos / end of Yom Tov, when there is one today. */
+    motzeiAt: number | null;
     omer: number | null;
     dafYomi: string | null;
     dafYomiHe: string | null;
@@ -40,6 +46,10 @@ export interface DisplayData {
   showYahrzeits: boolean;
   showSponsors: boolean;
   showDaf: boolean;
+  /** 'hebrew' renders the board right-to-left as a Hebrew luach. */
+  language: 'hebrew' | 'english';
+  learning: LearningItem[];
+  tefillah: TefillahDay | null;
 }
 
 /** Zmanim worth putting on a wall, in the order a person scans them. */
@@ -48,15 +58,20 @@ const BOARD_ZMANIM = [
   'chatzos', 'minchaGedola', 'plag', 'candleLighting', 'sunset', 'tzais',
 ];
 
-export async function getDisplayData(): Promise<DisplayData> {
+/**
+ * @param previewISO Render the board as it will look on another date. Used by
+ * the office to check a Yom Tov or Shabbos Chanukah before it arrives; the
+ * monitor itself never passes it.
+ */
+export async function getDisplayData(previewISO?: string): Promise<DisplayData> {
   const settings = await getSettings();
   const tz = settings.timezone;
-  const iso = todayISO(tz);
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(previewISO ?? '') ? previewISO! : todayISO(tz);
   const thisHebrewYear = new HDate().yy;
 
   const [schedule, upNext, news, sponsorRows, yahrzeitRows, eventRows] = await Promise.all([
     getDaySchedule(iso, settings),
-    getUpNext(settings, 3),
+    getUpNext(settings, 3, DateTime.fromISO(iso, { zone: tz }).toMillis()),
     getLiveAnnouncements({ audience: 'public', displayOnly: true, limit: 6 }),
     db
       .select()
@@ -78,6 +93,19 @@ export async function getDisplayData(): Promise<DisplayData> {
   ]);
 
   const { info } = schedule.day;
+  const hd = new HDate(new Date(`${iso}T12:00:00`));
+
+  // Learning cycles and the day's tefillah changes are pure calendar work — no
+  // database behind them, so they cost nothing to compute on each poll.
+  const learning = getLearning(hd, parseCycles(settings.displayLearningCycles), settings.inIsrael);
+  const tefillah = settings.displayShowTefillah
+    ? getTefillahDay(hd, {
+        inIsrael: settings.inIsrael,
+        saysMoridHatal: settings.saysMoridHatal,
+        kiddushLevanaFromDays: settings.kiddushLevanaFromDays,
+        timezone: tz,
+      })
+    : null;
 
   // Yahrzeits are stored by Hebrew date, so resolve each into this year's civil
   // date and split into "today" and "the week ahead".
@@ -108,6 +136,7 @@ export async function getDisplayData(): Promise<DisplayData> {
   return {
     generatedAt: Date.now(),
     timezone: tz,
+    ...(iso !== todayISO(tz) ? { previewOf: iso } : {}),
     shul: {
       nameHe: settings.nameHe,
       nameEn: settings.nameEn,
@@ -123,7 +152,12 @@ export async function getDisplayData(): Promise<DisplayData> {
       hebrewEn: info.hebrewDate,
       parshaHe: info.parshaHe,
       parshaEn: info.parsha,
-      holidays: info.holidays.map((h) => h.en),
+      holidays: info.holidays.map((h) => ({ en: h.en, he: h.he })),
+      // On Shabbos and Yom Tov the time people most want is when it goes out.
+      motzeiAt:
+        info.isAssurBemelacha && schedule.day.byId.sunset != null
+          ? schedule.day.byId.sunset + settings.havdalahMinutes * 60000
+          : null,
       omer: info.omer,
       dafYomi: info.dafYomi,
       dafYomiHe: info.dafYomiHe,
@@ -159,5 +193,18 @@ export async function getDisplayData(): Promise<DisplayData> {
     showYahrzeits: settings.displayShowYahrzeits,
     showSponsors: settings.displayShowSponsors,
     showDaf: settings.displayShowDaf,
+    language: settings.displayLanguage,
+    learning,
+    tefillah,
   };
+}
+
+/** The chosen learning cycles, falling back to the house set if the value is bad. */
+function parseCycles(json: string): LearningItem['key'][] {
+  const fallback: LearningItem['key'][] = ['chumash', 'daf', 'nach', 'dirshu'];
+  try {
+    const parsed = JSON.parse(json);
+    if (Array.isArray(parsed) && parsed.length) return parsed as LearningItem['key'][];
+  } catch { /* fall through */ }
+  return fallback;
 }
